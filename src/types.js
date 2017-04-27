@@ -3,13 +3,18 @@
 import Papa from 'papaparse';
 import { Map, Set } from 'immutable';
 
+function canoncalize(s: string): string {
+  return s.trim().split(/_|\s+/g).join(' ').toLowerCase();
+}
+
 export function readCSV(csv: string): Array<Species> {
   const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
   return data.map((row) => {
     const m = {};
     for (let k in row) {
+      k = canoncalize(k);
       if (k === 'name' || k === 'description') continue;
-      m[k] = Set(row[k].split(','));
+      m[k] = Set(row[k].split(',').map(canoncalize).filter((s) => s != ''));
     }
     return new Species(row.name, row.description, Map(m));
   });
