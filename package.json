@@ -8,6 +8,7 @@
     "flow": "node_modules/.bin/flow"
   },
   "dependencies": {
+    "immutability-helper": "^2.1.2",
     "papaparse": "^4.2.0",
     "react": "16.0.0-alpha.6",
     "react-native": "0.43.4"

@@ -8,15 +8,37 @@ import {
   TouchableOpacity,
   ScrollView
 } from 'react-native';
+import { Map, Set } from 'immutable';
+import update from 'immutability-helper';
 
 import { readCSV, Dataset } from './types';
 
 const dataset = new Dataset( readCSV("name,description,color,size\ndog,it's a dog,brown,big\ncat,it's a cat,\"white,brown\",small") );
 
-export class NomenNative extends Component {
+type NomenState = {
+  selected: Map<string, Set<string>>;
+};
+
+export class NomenNative extends Component<void, {}, NomenState> {
+  state: NomenState;
+
+  constructor(props: {}) {
+    super(props);
+    this.state = { selected: Map() };
+  }
+
+  press(k: string, v: string) {
+    this.setState((state) => update(state, {
+      selected: {
+        $apply: (sel) => sel.update(k, Set(), (vs: Set<string>) => vs.has(v) ? vs.delete(v) : vs.add(v))
+      }
+    }));
+  }
+
   render() {
     return (
       <View style={styles.outerView}>
+        <Text>{JSON.stringify(this.state)}</Text>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
             Array.from(dataset.attributes).map(([k, vs]) =>
@@ -25,7 +47,7 @@ export class NomenNative extends Component {
                 <ScrollView horizontal={true} style={styles.attrValues}>
                   {
                     Array.from(vs).map((v) =>
-                      <TouchableOpacity key={v}>
+                      <TouchableOpacity key={v} onPress={() => this.press(k, v)}>
                         <Text key={v} style={styles.attrValue}>
                           {v}
                         </Text>
@@ -37,6 +59,7 @@ export class NomenNative extends Component {
             )
           }
         </ScrollView>
+        <Text>{JSON.stringify( dataset.score(this.state.selected) )}</Text>
       </View>
     );
   }

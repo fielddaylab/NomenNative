@@ -1,16 +1,17 @@
 // @flow
 
 import Papa from 'papaparse';
+import { Map, Set } from 'immutable';
 
 export function readCSV(csv: string): Array<Species> {
   const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
   return data.map((row) => {
-    const m = new Map();
+    const m = {};
     for (let k in row) {
       if (k === 'name' || k === 'description') continue;
-      m.set(k, new Set(row[k].split(',')));
+      m[k] = Set(row[k].split(','));
     }
-    return new Species(row.name, row.description, m);
+    return new Species(row.name, row.description, Map(m));
   });
 }
 
@@ -26,7 +27,7 @@ export class Species {
   }
 
   lookupKey(key: string): Set<string> {
-    return this.attributes.get(key) || new Set();
+    return this.attributes.get(key) || Set();
   }
 
   score(attrs: Map<string, Set<string>>): number {
@@ -35,7 +36,7 @@ export class Species {
     attrs.forEach((vs, k) => {
       if (vs.size == 0) return;
       const my = this.lookupKey(k);
-      if (vs.values.some((v) => my.has(v))) n++;
+      if (vs.some((v) => my.has(v))) n++;
       d++;
     });
     return d == 0 ? 1 : n / d;
@@ -48,24 +49,17 @@ export class Dataset {
 
   constructor(species: Array<Species>) {
     this.species = species;
-    const keys: Set<string> = new Set();
+    let keys: Set<string> = Set();
     species.forEach((sp) => {
-      for (let k of sp.attributes.keys()) {
-        keys.add(k);
-      }
+      keys = keys.union(Set(sp.attributes.keys()));
     });
-    this.attributes = new Map();
+    this.attributes = Map();
     keys.forEach((k) => {
       species.forEach((sp) => {
         const vs: ?Set<string> = sp.attributes.get(k);
         if (vs) {
           vs.forEach((v) => {
-            const set: ?Set<string> = this.attributes.get(k);
-            if (set) {
-              set.add(v);
-            } else {
-              this.attributes.set(k, new Set([v]));
-            }
+            this.attributes = this.attributes.update(k, Set(), (set) => set.add(v));
           });
         }
       });
