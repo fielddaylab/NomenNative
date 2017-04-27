@@ -2,7 +2,7 @@
 
 import Papa from 'papaparse';
 
-function readCSV(csv: string): Array<Species> {
+export function readCSV(csv: string): Array<Species> {
   const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
   return data.map((row) => {
     const m = new Map();
@@ -14,7 +14,7 @@ function readCSV(csv: string): Array<Species> {
   });
 }
 
-class Species {
+export class Species {
   name: string;
   description: string;
   attributes: Map<string, Set<string>>;
@@ -42,7 +42,7 @@ class Species {
   }
 }
 
-class Dataset {
+export class Dataset {
   attributes: Map<string, Set<string>>;
   species: Array<Species>;
 
@@ -50,9 +50,9 @@ class Dataset {
     this.species = species;
     const keys: Set<string> = new Set();
     species.forEach((sp) => {
-      sp.attributes.keys.forEach((k) => {
+      for (let k of sp.attributes.keys()) {
         keys.add(k);
-      });
+      }
     });
     this.attributes = new Map();
     keys.forEach((k) => {
