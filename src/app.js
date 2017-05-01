@@ -14,7 +14,7 @@ import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
 import { readCSV, Dataset, Species } from './types';
-import { plants_csv, feature_images } from './plants';
+import { plants_csv, getFeatureImage, getSpeciesImages } from './plants';
 
 const dataset = new Dataset( readCSV(plants_csv) );
 
@@ -81,7 +81,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
                       <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.press(k, v)}>
                         <Image
                           style={styles.attributeImage}
-                          source={feature_images[k.replace(/ /g, '_') + '/' + v.replace(/ /g, '_')]}
+                          source={getFeatureImage(k, v)}
                         />
                         <Text key={v} style={this.isSelected(k, v) ? styles.attrOn : styles.attrOff}>
                           {v}
@@ -155,12 +155,18 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, void> {
   };
 
   render() {
+    const imgs = getSpeciesImages(this.props.species);
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goToResults}>
         <Text style={styles.marginTodo}>Back to results</Text>
       </TouchableOpacity>
       <ScrollView>
         <Text style={styles.marginTodo}>Name: {this.props.species.name}</Text>
+        {
+          imgs.length === 0 ? undefined : (
+            <Image source={imgs[0]} />
+          )
+        }
         <Text style={styles.marginTodo}>Description: {this.props.species.description}</Text>
         {
           Array.from(this.props.species.attributes).map(([k, v]) =>
