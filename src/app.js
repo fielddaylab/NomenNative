@@ -7,13 +7,14 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  Navigator
+  Navigator,
+  Image
 } from 'react-native';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
 import { readCSV, Dataset, Species } from './types';
-import { plants_csv } from './plants';
+import { plants_csv, feature_images } from './plants';
 
 const dataset = new Dataset( readCSV(plants_csv) );
 
@@ -77,7 +78,11 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
                 <ScrollView horizontal={true} style={styles.attrValues}>
                   {
                     Array.from(vs).sort().map((v) =>
-                      <TouchableOpacity key={v} onPress={() => this.press(k, v)}>
+                      <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.press(k, v)}>
+                        <Image
+                          style={styles.attributeImage}
+                          source={feature_images[k.replace(/ /g, '_') + '/' + v.replace(/ /g, '_')]}
+                        />
                         <Text key={v} style={this.isSelected(k, v) ? styles.attrOn : styles.attrOff}>
                           {v}
                         </Text>
@@ -248,5 +253,13 @@ const styles = StyleSheet.create({
   },
   marginTodo: {
     margin: 10,
+  },
+  attributeImage: {
+    height: 40,
+    width: 40,
+  },
+  attributeButton: {
+    alignItems: 'center',
+    flexDirection: 'column',
   },
 });

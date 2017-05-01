@@ -15,7 +15,7 @@ export function readCSV(csv: string): Array<Species> {
     for (let k in row) {
       let v = row[k];
       k = canoncalize(k);
-      if (k === 'name' || k === 'description') continue;
+      if (k === 'name' || k === 'description' || k === 'display name') continue;
       if (k.match(/^tab /)) {
         tabs[k.slice('tab '.length)] = v;
       } else {
