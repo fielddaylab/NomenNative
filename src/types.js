@@ -10,13 +10,19 @@ function canoncalize(s: string): string {
 export function readCSV(csv: string): Array<Species> {
   const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
   return data.map((row) => {
-    const m = {};
+    const attrs = {};
+    const tabs = {};
     for (let k in row) {
+      let v = row[k];
       k = canoncalize(k);
       if (k === 'name' || k === 'description') continue;
-      m[k] = Set(row[k].split(',').map(canoncalize).filter((s) => s != ''));
+      if (k.match(/^tab /)) {
+        tabs[k.slice('tab '.length)] = v;
+      } else {
+        attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
+      }
     }
-    return new Species(row.name, row.description, Map(m));
+    return new Species(row.name, row.description, Map(attrs), Map(tabs));
   });
 }
 
@@ -24,11 +30,13 @@ export class Species {
   name: string;
   description: string;
   attributes: Map<string, Set<string>>;
+  tabs: Map<string, string>;
 
-  constructor(name: string, description: string, attributes: Map<string, Set<string>>) {
+  constructor(name: string, description: string, attributes: Map<string, Set<string>> = Map(), tabs: Map<string, string> = Map()) {
     this.name = name;
     this.description = description;
     this.attributes = attributes;
+    this.tabs = tabs;
   }
 
   lookupKey(key: string): Set<string> {

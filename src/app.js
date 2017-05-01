@@ -13,9 +13,9 @@ import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
 import { readCSV, Dataset, Species } from './types';
+import { plants_csv } from './plants';
 
-const datasetCSV: string = "name,description,color,size\ndog,it's a dog,brown,big\ncat,it's a cat,\"white,brown\",small";
-const dataset = new Dataset( readCSV(datasetCSV) );
+const dataset = new Dataset( readCSV(plants_csv) );
 
 type AttributesProps = {
   selected: Map<string, Set<string>>,
@@ -120,16 +120,17 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, void> {
   render() {
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goToAttributes}>
-        <Text>Back to attributes</Text>
+        <Text style={styles.marginTodo}>Back to attributes</Text>
       </TouchableOpacity>
-      {
-        this.props.results.map(([species, score]) =>
-          <TouchableOpacity key={species.name} onPress={() => this.props.goToSpecies(species)}>
-            <Text>{species.name}</Text>
-            <Text>Score: {score}</Text>
-          </TouchableOpacity>
-        )
-      }
+      <ScrollView>
+        {
+          this.props.results.map(([species, score]) =>
+            <TouchableOpacity key={species.name} onPress={() => this.props.goToSpecies(species)}>
+              <Text style={styles.marginTodo}>{species.name} ({Math.floor(score * 100)}%)</Text>
+            </TouchableOpacity>
+          )
+        }
+      </ScrollView>
     </View>;
   }
 }
@@ -151,11 +152,26 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, void> {
   render() {
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goToResults}>
-        <Text>Back to results</Text>
+        <Text style={styles.marginTodo}>Back to results</Text>
       </TouchableOpacity>
-      <Text>Name: {this.props.species.name}</Text>
-      <Text>Description: {this.props.species.description}</Text>
-      <Text>Attributes: {JSON.stringify(this.props.species.attributes)}</Text>
+      <ScrollView>
+        <Text style={styles.marginTodo}>Name: {this.props.species.name}</Text>
+        <Text style={styles.marginTodo}>Description: {this.props.species.description}</Text>
+        {
+          Array.from(this.props.species.attributes).map(([k, v]) =>
+            <Text style={styles.marginTodo} key={k}>
+              {k}: {v.join(', ')}
+            </Text>
+          )
+        }
+        {
+          Array.from(this.props.species.tabs).map(([k, v]) =>
+            <Text style={styles.marginTodo} key={k}>
+              {k}: {v}
+            </Text>
+          )
+        }
+      </ScrollView>
     </View>;
   }
 }
@@ -229,5 +245,8 @@ const styles = StyleSheet.create({
     margin: 10,
     textAlign: 'center',
     color: 'gray',
+  },
+  marginTodo: {
+    margin: 10,
   },
 });
