@@ -140,6 +140,10 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, void> {
   }
 }
 
+type SpeciesState = {
+  tab: string,
+};
+
 type SpeciesProps = {
   species: Species,
   goToResults: () => void,
@@ -149,10 +153,17 @@ type SpeciesPropsDef = {
   goToResults: () => void,
 };
 
-class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, void> {
+class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesState> {
   static defaultProps = {
     goToResults: () => {},
   };
+
+  state: SpeciesState;
+
+  constructor(props: {}) {
+    super(props);
+    this.state = { tab: 'description' };
+  }
 
   render() {
     const imgs = getSpeciesImages(this.props.species);
@@ -167,20 +178,37 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, void> {
             <Image source={imgs[0]} />
           )
         }
-        <Text style={styles.marginTodo}>Description: {this.props.species.description}</Text>
+        <ScrollView horizontal={true} style={styles.attrValues}>
+          {
+            ['description'].concat(Array.from(this.props.species.tabs.keys())).map((k) =>
+              <TouchableOpacity key={k} onPress={() => this.setState({tab: k})}>
+                <Text style={k === this.state.tab ? styles.attrOn : styles.attrOff}>{k}</Text>
+              </TouchableOpacity>
+            )
+          }
+        </ScrollView>
         {
-          Array.from(this.props.species.attributes).map(([k, v]) =>
-            <Text style={styles.marginTodo} key={k}>
-              {k}: {v.join(', ')}
+          this.state.tab === 'description' ? <View>
+            <Text style={styles.marginTodo}>{this.props.species.description}</Text>
+            {
+              Array.from(this.props.species.attributes).map(([k, v]) =>
+                <Text style={styles.marginTodo} key={k}>
+                  {k}: {v.join(', ')}
+                </Text>
+              )
+            }
+            {
+              Array.from(this.props.species.tabs).map(([k, v]) =>
+                <Text style={styles.marginTodo} key={k}>
+                  {k}: {v}
+                </Text>
+              )
+            }
+          </View> : <View>
+            <Text style={styles.marginTodo}>
+              { this.props.species.tabs.get(this.state.tab) }
             </Text>
-          )
-        }
-        {
-          Array.from(this.props.species.tabs).map(([k, v]) =>
-            <Text style={styles.marginTodo} key={k}>
-              {k}: {v}
-            </Text>
-          )
+          </View>
         }
       </ScrollView>
     </View>;
