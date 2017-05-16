@@ -18,6 +18,67 @@ import { plants_csv, getFeatureImage, getSpeciesImages } from './plants';
 
 const dataset = new Dataset( readCSV(plants_csv) );
 
+type AttributeRowProps = {
+  attrKey: string,
+  attrValues: Array<string>,
+  isSelected: (string, string) => boolean,
+  onPressValue: (string, string) => void,
+  shouldHide: boolean,
+};
+
+type AttributeRowState = {
+  userOpened: boolean,
+};
+
+class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState> {
+  state: AttributeRowState;
+
+  constructor(props) {
+    super(props);
+    this.state = { userOpened: false };
+  }
+
+  componentWillReceiveProps(props) {
+    if (!props.shouldHide) {
+      this.setState({ userOpened: false });
+    }
+  }
+
+  render() {
+    const k = this.props.attrKey;
+    if (this.props.shouldHide && !this.state.userOpened) {
+      return (
+        <View style={styles.attrSection}>
+          <TouchableOpacity onPress={() => this.setState({userOpened: true})}>
+            <Text style={styles.attrHeaderGray}>{k.toUpperCase()}</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.attrSection}>
+          <Text style={styles.attrHeader}>{k.toUpperCase()}</Text>
+          <ScrollView horizontal={true} style={styles.attrValues}>
+            {
+              Array.from(this.props.attrValues).sort().map((v) =>
+                <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.props.onPressValue(k, v)}>
+                  <Image
+                    style={styles.attributeImage}
+                    source={getFeatureImage(k, v)}
+                  />
+                  <Text key={v} style={this.props.isSelected(k, v) ? styles.attrOn : styles.attrOff}>
+                    {v}
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
+          </ScrollView>
+        </View>
+      );
+    }
+  }
+}
+
 type AttributesProps = {
   selected: Map<string, Set<string>>,
   updateSelected: (Map<string, Set<string>>) => void,
@@ -57,6 +118,20 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
     this.props.updateSelected(Map());
   }
 
+  shouldHide(k: string, scored: Array<[Species, number]>): boolean {
+    if (this.props.selected.get(k, Set()).size !== 0) {
+      return false;
+    }
+    for (let [species, score] of scored) {
+      if (score == 1) {
+        if (species.attributes.get(k, Set()).size !== 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   render() {
     const scored = dataset.score(this.props.selected);
     let perfect = 0;
@@ -73,24 +148,14 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
             Array.from(dataset.attributes).map(([k, vs]) =>
-              <View key={k} style={styles.attrSection}>
-                <Text style={styles.attrHeader}>{k}</Text>
-                <ScrollView horizontal={true} style={styles.attrValues}>
-                  {
-                    Array.from(vs).sort().map((v) =>
-                      <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.press(k, v)}>
-                        <Image
-                          style={styles.attributeImage}
-                          source={getFeatureImage(k, v)}
-                        />
-                        <Text key={v} style={this.isSelected(k, v) ? styles.attrOn : styles.attrOff}>
-                          {v}
-                        </Text>
-                      </TouchableOpacity>
-                    )
-                  }
-                </ScrollView>
-              </View>
+              <AttributeRow
+                key={k}
+                attrKey={k}
+                attrValues={vs}
+                isSelected={this.isSelected.bind(this)}
+                onPressValue={this.press.bind(this)}
+                shouldHide={this.shouldHide(k, scored)}
+              />
             )
           }
         </ScrollView>
@@ -272,6 +337,11 @@ const styles = StyleSheet.create({
   attrHeader: {
     margin: 10,
     textAlign: 'center',
+  },
+  attrHeaderGray: {
+    margin: 10,
+    textAlign: 'center',
+    color: 'gray',
   },
   attrValues: {
   },
