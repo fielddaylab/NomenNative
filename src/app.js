@@ -187,6 +187,7 @@ type ResultsProps = {
 type ResultsState = {
   menuOpen: boolean,
   name: 'common' | 'binomial',
+  layout: 'list' | 'grid',
 };
 
 class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> {
@@ -202,6 +203,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
     this.state = {
       menuOpen: false,
       name: 'common',
+      layout: 'list',
     };
   }
 
@@ -233,15 +235,40 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
           </View>
         : undefined
       }
+      {
+        this.state.menuOpen
+        ? <View style={styles.topBar}>
+            <Text style={styles.marginTodo}>Layout:</Text>
+            <TouchableOpacity onPress={() => this.setState({layout: 'list'})}>
+              <Text style={this.state.layout === 'list' ? styles.attrOn : styles.attrOff}>List</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.setState({layout: 'grid'})}>
+              <Text style={this.state.layout === 'grid' ? styles.attrOn : styles.attrOff}>Grid</Text>
+            </TouchableOpacity>
+          </View>
+        : undefined
+      }
       <ScrollView>
         {
-          this.props.results.map(([species, score]) =>
-            <TouchableOpacity key={species.name} onPress={() => this.props.goToSpecies(species)}>
-              <Text style={styles.marginTodo}>
-                {this.state.name === 'common' ? species.displayName : species.name} ({Math.floor(score * 100)}%)
-              </Text>
-            </TouchableOpacity>
-          )
+          this.state.layout === 'list'
+          ? this.props.results.map(([species, score]) =>
+              <TouchableOpacity style={styles.resultsRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
+                {
+                  (() => {
+                    const imgs = getSpeciesImages(species);
+                    return (
+                      imgs.length === 0
+                      ? <View style={styles.resultsRowImage} />
+                      : <Image source={imgs[0]} style={styles.resultsRowImage} />
+                    );
+                  })()
+                }
+                <Text style={styles.marginTodo}>
+                  {this.state.name === 'common' ? species.displayName : species.name} ({Math.floor(score * 100)}%)
+                </Text>
+              </TouchableOpacity>
+            )
+          : undefined
         }
       </ScrollView>
     </View>;
@@ -399,7 +426,7 @@ const styles = StyleSheet.create({
   attrOff: {
     margin: 10,
     textAlign: 'center',
-    color: 'gray',
+    color: '#bbb',
   },
   marginTodo: {
     margin: 10,
@@ -424,5 +451,14 @@ const styles = StyleSheet.create({
   },
   hidden: {
     opacity: 0
+  },
+  resultsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  resultsRowImage: {
+    height: 50,
+    width: 50,
+    margin: 2,
   },
 });
