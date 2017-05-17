@@ -46,6 +46,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
 
   render() {
     const k = this.props.attrKey;
+    const anyOn = Array.from(this.props.attrValues).some((v) => this.props.isSelected(k, v));
     if (this.props.shouldHide && !this.state.userOpened) {
       return (
         <View style={styles.attrSection}>
@@ -60,17 +61,20 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
           <Text style={styles.attrHeader}>{k.toUpperCase()}</Text>
           <ScrollView horizontal={true} style={styles.attrValues}>
             {
-              Array.from(this.props.attrValues).sort().map((v) =>
-                <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.props.onPressValue(k, v)}>
-                  <Image
-                    style={styles.attributeImage}
-                    source={getFeatureImage(k, v)}
-                  />
-                  <Text key={v} style={this.props.isSelected(k, v) ? styles.attrOn : styles.attrOff}>
-                    {v}
-                  </Text>
-                </TouchableOpacity>
-              )
+              Array.from(this.props.attrValues).sort().map((v) => {
+                const isOn = this.props.isSelected(k, v) || !anyOn;
+                return (
+                  <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.props.onPressValue(k, v)}>
+                    <Image
+                      style={isOn ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
+                      source={getFeatureImage(k, v)}
+                    />
+                    <Text key={v} style={isOn ? styles.attrOn : styles.attrOff}>
+                      {v}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })
             }
           </ScrollView>
         </View>
@@ -363,7 +367,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    backgroundColor: '#E5ECEF',
+    backgroundColor: 'white',
     marginTop: 20, // TODO
   },
   scrollAttrs: {
@@ -372,10 +376,13 @@ const styles = StyleSheet.create({
   scrollAttrsContent: {
   },
   attrSection: {
+    borderBottomColor: '#F4F4F4',
+    borderBottomWidth: 2,
   },
   attrHeader: {
     margin: 10,
     textAlign: 'center',
+    letterSpacing: 1,
   },
   attrHeaderGray: {
     margin: 10,
@@ -400,6 +407,9 @@ const styles = StyleSheet.create({
   attributeImage: {
     height: 40,
     width: 40,
+  },
+  attributeImageOff: {
+    opacity: 0.7
   },
   attributeButton: {
     alignItems: 'center',
