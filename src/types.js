@@ -22,19 +22,21 @@ export function readCSV(csv: string): Array<Species> {
         attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
       }
     }
-    return new Species(row.name, row.description, Map(attrs), Map(tabs));
+    return new Species(row.name, row.description, row.display_name, Map(attrs), Map(tabs));
   });
 }
 
 export class Species {
   name: string;
   description: string;
+  displayName: string;
   attributes: Map<string, Set<string>>;
   tabs: Map<string, string>;
 
-  constructor(name: string, description: string, attributes: Map<string, Set<string>> = Map(), tabs: Map<string, string> = Map()) {
+  constructor(name: string, description: string, displayName: string, attributes: Map<string, Set<string>> = Map(), tabs: Map<string, string> = Map()) {
     this.name = name;
     this.description = description;
+    this.displayName = displayName;
     this.attributes = attributes;
     this.tabs = tabs;
   }

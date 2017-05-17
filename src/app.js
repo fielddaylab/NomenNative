@@ -180,23 +180,62 @@ type ResultsProps = {
   goToSpecies: (Species) => void,
 };
 
-class ResultsScreen extends Component<ResultsProps, ResultsProps, void> {
+type ResultsState = {
+  menuOpen: boolean,
+  name: 'common' | 'binomial',
+};
+
+class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> {
   static defaultProps = {
     results: [],
     goToAttributes: () => {},
     goToSpecies: () => {},
   };
+  state: ResultsState;
+
+  constructor(props: ResultsProps) {
+    super(props);
+    this.state = {
+      menuOpen: false,
+      name: 'common',
+    };
+  }
+
+  toggleMenu() {
+    this.setState({menuOpen: !this.state.menuOpen});
+  }
 
   render() {
     return <View style={styles.outerView}>
-      <TouchableOpacity onPress={this.props.goToAttributes}>
-        <Text style={styles.marginTodo}>Back to attributes</Text>
-      </TouchableOpacity>
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={this.props.goToAttributes}>
+          <Text style={styles.marginTodo}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.toggleMenu.bind(this)}>
+          <Text style={styles.marginTodo}>Results</Text>
+        </TouchableOpacity>
+        <Text style={[styles.marginTodo, styles.hidden]}>Back</Text>
+      </View>
+      {
+        this.state.menuOpen
+        ? <View style={styles.topBar}>
+            <Text style={styles.marginTodo}>Naming:</Text>
+            <TouchableOpacity onPress={() => this.setState({name: 'common'})}>
+              <Text style={this.state.name === 'common' ? styles.attrOn : styles.attrOff}>Common</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.setState({name: 'binomial'})}>
+              <Text style={this.state.name === 'binomial' ? styles.attrOn : styles.attrOff}>Binomial</Text>
+            </TouchableOpacity>
+          </View>
+        : undefined
+      }
       <ScrollView>
         {
           this.props.results.map(([species, score]) =>
             <TouchableOpacity key={species.name} onPress={() => this.props.goToSpecies(species)}>
-              <Text style={styles.marginTodo}>{species.name} ({Math.floor(score * 100)}%)</Text>
+              <Text style={styles.marginTodo}>
+                {this.state.name === 'common' ? species.displayName : species.name} ({Math.floor(score * 100)}%)
+              </Text>
             </TouchableOpacity>
           )
         }
@@ -365,5 +404,15 @@ const styles = StyleSheet.create({
   attributeButton: {
     alignItems: 'center',
     flexDirection: 'column',
+  },
+  topBar: {
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+  },
+  hidden: {
+    opacity: 0
   },
 });
