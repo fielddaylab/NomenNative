@@ -171,7 +171,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
           : undefined
         }
         <TouchableOpacity onPress={this.props.goToResults}>
-          <Text style={styles.attrHeader}>{perfect} results</Text>
+          <Text style={styles.attrHeader}>{String(perfect)} results</Text>
         </TouchableOpacity>
       </View>
     );
@@ -215,12 +215,12 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
     return <View style={styles.outerView}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={this.props.goToAttributes}>
-          <Text style={styles.marginTodo}>Back</Text>
+          <Image style={styles.backButton} source={require('../img/back.png')} />
         </TouchableOpacity>
         <TouchableOpacity onPress={this.toggleMenu.bind(this)}>
           <Text style={styles.marginTodo}>Results</Text>
         </TouchableOpacity>
-        <Text style={[styles.marginTodo, styles.hidden]}>Back</Text>
+        <View style={styles.backButton}></View>
       </View>
       {
         this.state.menuOpen
@@ -264,7 +264,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
                   })()
                 }
                 <Text style={styles.marginTodo}>
-                  {this.state.name === 'common' ? species.displayName : species.name} ({Math.floor(score * 100)}%)
+                  {this.state.name === 'common' ? species.displayName : species.name} ({String(Math.floor(score * 100))}%)
                 </Text>
               </TouchableOpacity>
             )
@@ -304,7 +304,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
     const imgs = getSpeciesImages(this.props.species);
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goToResults}>
-        <Text style={styles.marginTodo}>Back to results</Text>
+        <Image style={styles.backButton} source={require('../img/back.png')} />
       </TouchableOpacity>
       <ScrollView>
         <Text style={styles.marginTodo}>Name: {this.props.species.name}</Text>
@@ -446,8 +446,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     flexDirection: 'row',
-    borderBottomColor: 'black',
-    borderBottomWidth: 1,
+    borderBottomColor: '#F4F4F4',
+    borderBottomWidth: 2,
   },
   hidden: {
     opacity: 0
@@ -460,5 +460,10 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     margin: 2,
+  },
+  backButton: {
+    margin: 10,
+    height: 44 * 0.4,
+    width: 60 * 0.4,
   },
 });
