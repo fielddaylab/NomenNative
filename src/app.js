@@ -218,6 +218,14 @@ type ResultsState = {
   layout: 'list' | 'grid',
 };
 
+function arrayChunks<T>(ary: Array<T>, chunkLen: number): Array<Array<T>> {
+  const chunks = [];
+  for (var i = 0; i < ary.length; i += chunkLen) {
+    chunks.push(ary.slice(i, i + chunkLen));
+  }
+  return chunks;
+}
+
 class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> {
   static defaultProps = {
     results: [],
@@ -296,7 +304,34 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
                 </Text>
               </TouchableOpacity>
             )
-          : undefined
+          : (() => {
+              const makeGridSquare = (maybeSpecScore: ?[Species, number]) => {
+                if (maybeSpecScore == null) {
+                  return <View style={styles.gridSquare} />
+                } else {
+                  const [species, score] = maybeSpecScore;
+                  const imgs = getSpeciesImages(species);
+                  return (
+                    <TouchableOpacity style={styles.gridSquare} onPress={() => this.props.goToSpecies(species)}>
+                      {
+                        imgs.length === 0
+                        ? <View style={styles.resultsGridImage} />
+                        : <Image source={imgs[0]} style={styles.resultsGridImage} resizeMode="cover" />
+                      }
+                      <Text style={styles.marginTodo}>
+                        {this.state.name === 'common' ? species.displayName : species.name} ({String(Math.floor(score * 100))}%)
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }
+              };
+              return arrayChunks(this.props.results, 2).map((specs) =>
+                <View key={specs[0][0].name} style={styles.gridRow}>
+                  {makeGridSquare(specs[0])}
+                  {makeGridSquare(specs[1])}
+                </View>
+              );
+            })()
         }
       </ScrollView>
     </View>;
@@ -335,7 +370,8 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         <Image style={styles.backButton} source={require('../img/back.png')} />
       </TouchableOpacity>
       <ScrollView>
-        <Text style={styles.marginTodo}>Name: {this.props.species.name}</Text>
+        <Text style={styles.speciesCommon}>{this.props.species.displayName}</Text>
+        <Text style={styles.speciesBinomial}>{this.props.species.name}</Text>
         {
           imgs.length === 0 ? undefined : (
             <Image source={imgs[0]} />
@@ -344,7 +380,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         <ScrollView horizontal={true} style={styles.attrValues}>
           {
             ['description'].concat(Array.from(this.props.species.tabs.keys())).map((k) =>
-              <TouchableOpacity key={k} onPress={() => this.setState({tab: k})}>
+              <TouchableOpacity key={k} style={k === this.state.tab ? styles.tabOn : styles.tabOff} onPress={() => this.setState({tab: k})}>
                 <Text style={k === this.state.tab ? styles.attrOn : styles.attrOff}>{k}</Text>
               </TouchableOpacity>
             )
@@ -423,7 +459,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'stretch',
     backgroundColor: 'white',
-    marginTop: 20, // TODO
+    marginTop: 20, // TODO actually set this up for ios+android
   },
   scrollAttrs: {
     flex: 1,
@@ -445,6 +481,8 @@ const styles = StyleSheet.create({
     color: 'gray',
   },
   attrValues: {
+    marginLeft: 12,
+    marginRight: 12,
   },
   attrOn: {
     margin: 10,
@@ -505,5 +543,35 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  speciesCommon: {
+    margin: 10,
+    marginBottom: 3,
+    fontSize: 20,
+  },
+  speciesBinomial: {
+    margin: 10,
+    marginTop: 3,
+    color: '#E7A740',
+    fontStyle: 'italic',
+  },
+  tabOn: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#C7C7C7',
+  },
+  tabOff: {
+  },
+  gridRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  gridSquare: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  resultsGridImage: {
+    flex: 1,
+    height: 200,
+    width: null,
   },
 });
