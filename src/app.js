@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Navigator,
-  Image
+  Image,
+  Modal,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
@@ -28,6 +30,7 @@ type AttributeRowProps = {
 
 type AttributeRowState = {
   userOpened: boolean,
+  modal: ?{header: string, info: string},
 };
 
 class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState> {
@@ -35,7 +38,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
 
   constructor(props) {
     super(props);
-    this.state = { userOpened: false };
+    this.state = { userOpened: false, modal: null };
   }
 
   componentWillReceiveProps(props) {
@@ -47,39 +50,64 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
   render() {
     const k = this.props.attrKey;
     const anyOn = Array.from(this.props.attrValues).some((v) => this.props.isSelected(k, v));
-    if (this.props.shouldHide && !this.state.userOpened) {
-      return (
-        <View style={styles.attrSection}>
-          <TouchableOpacity onPress={() => this.setState({userOpened: true})}>
-            <Text style={styles.attrHeaderGray}>{k.toUpperCase()}</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    } else {
-      return (
-        <View style={styles.attrSection}>
-          <Text style={styles.attrHeader}>{k.toUpperCase()}</Text>
-          <ScrollView horizontal={true} style={styles.attrValues}>
-            {
-              Array.from(this.props.attrValues).sort().map((v) => {
-                const isOn = this.props.isSelected(k, v) || !anyOn;
-                return (
-                  <TouchableOpacity style={styles.attributeButton} key={v} onPress={() => this.props.onPressValue(k, v)}>
-                    <Image
-                      style={isOn ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
-                      source={getFeatureImage(k, v)}
-                    />
-                    <Text key={v} style={isOn ? styles.attrOn : styles.attrOff}>
-                      {v}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })
-            }
-          </ScrollView>
-        </View>
-      );
-    }
+    const hidden = this.props.shouldHide && !this.state.userOpened
+    return (
+      <View style={styles.attrSection}>
+        <TouchableOpacity
+          onPress={() => this.setState({userOpened: true})}
+          onLongPress={() => this.setState({modal: {
+            header: k,
+            info: 'Info about the attribute goes here.'
+          }})}
+        >
+          <Text style={hidden ? styles.attrHeaderGray : styles.attrHeader}>
+            {k.toUpperCase()}
+          </Text>
+        </TouchableOpacity>
+        {
+          hidden
+          ? undefined
+          : <ScrollView horizontal={true} style={styles.attrValues}>
+              {
+                Array.from(this.props.attrValues).sort().map((v) => {
+                  const isOn = this.props.isSelected(k, v) || !anyOn;
+                  return (
+                    <TouchableOpacity style={styles.attributeButton} key={v}
+                      onPress={() => this.props.onPressValue(k, v)}
+                      onLongPress={() => this.setState({modal: {
+                        header: k + ' - ' + v,
+                        info: 'Info about the attribute value goes here.'
+                      }})}
+                    >
+                      <Image
+                        style={isOn ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
+                        source={getFeatureImage(k, v)}
+                      />
+                      <Text key={v} style={isOn ? styles.attrOn : styles.attrOff}>
+                        {v}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              }
+            </ScrollView>
+        }
+        {
+          this.state.modal == null
+          ? undefined
+          : <Modal transparent={true}>
+              <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
+                <View style={styles.modalBackground}>
+                  <View style={styles.modalWhiteBox}>
+                    <Text style={{margin: 20}}>{this.state.modal.header}</Text>
+                    <Text style={{margin: 20}}>{this.state.modal.info}</Text>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </Modal>
+        }
+      </View>
+    );
   }
 }
 
@@ -465,5 +493,17 @@ const styles = StyleSheet.create({
     margin: 10,
     height: 44 * 0.4,
     width: 60 * 0.4,
+  },
+  modalBackground: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    flex: 1,
+  },
+  modalWhiteBox: {
+    backgroundColor: 'white',
+    margin: 60,
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
