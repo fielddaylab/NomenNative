@@ -36,7 +36,7 @@ type AttributeRowState = {
 class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState> {
   state: AttributeRowState;
 
-  constructor(props) {
+  constructor(props: AttributeRowProps) {
     super(props);
     this.state = { userOpened: false, modal: null };
   }
@@ -115,6 +115,7 @@ type AttributesProps = {
   selected: Map<string, Set<string>>,
   updateSelected: (Map<string, Set<string>>) => void,
   goToResults: () => void,
+  goToSearch: () => void,
 };
 
 class AttributesScreen extends Component<AttributesProps, AttributesProps, void> {
@@ -126,6 +127,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
     selected: Map(),
     updateSelected: () => {},
     goToResults: () => {},
+    goToSearch: () => {},
   };
 
   press(k: string, v: string): void {
@@ -177,6 +179,9 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
 
     return (
       <View style={styles.outerView}>
+        <TouchableOpacity onPress={this.props.goToSearch}>
+          <Text style={styles.attrHeader}>Search</Text>
+        </TouchableOpacity>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
             Array.from(dataset.attributes).map(([k, vs]) =>
@@ -208,7 +213,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
 
 type ResultsProps = {
   results: Array<[Species, number]>,
-  goToAttributes: () => void,
+  goBack: () => void,
   goToSpecies: (Species) => void,
 };
 
@@ -229,7 +234,7 @@ function arrayChunks<T>(ary: Array<T>, chunkLen: number): Array<Array<T>> {
 class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> {
   static defaultProps = {
     results: [],
-    goToAttributes: () => {},
+    goBack: () => {},
     goToSpecies: () => {},
   };
   state: ResultsState;
@@ -250,7 +255,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
   render() {
     return <View style={styles.outerView}>
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={this.props.goToAttributes}>
+        <TouchableOpacity onPress={this.props.goBack}>
           <Image style={styles.backButton} source={require('../img/back.png')} />
         </TouchableOpacity>
         <TouchableOpacity onPress={this.toggleMenu.bind(this)}>
@@ -344,21 +349,21 @@ type SpeciesState = {
 
 type SpeciesProps = {
   species: Species,
-  goToResults: () => void,
+  goBack: () => void,
 };
 
 type SpeciesPropsDef = {
-  goToResults: () => void,
+  goBack: () => void,
 };
 
 class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesState> {
   static defaultProps = {
-    goToResults: () => {},
+    goBack: () => {},
   };
 
   state: SpeciesState;
 
-  constructor(props: {}) {
+  constructor(props: SpeciesProps) {
     super(props);
     this.state = { tab: 'description' };
   }
@@ -366,7 +371,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
   render() {
     const imgs = getSpeciesImages(this.props.species);
     return <View style={styles.outerView}>
-      <TouchableOpacity onPress={this.props.goToResults}>
+      <TouchableOpacity onPress={this.props.goBack}>
         <Image style={styles.backButton} source={require('../img/back.png')} />
       </TouchableOpacity>
       <ScrollView>
@@ -414,12 +419,96 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
   }
 }
 
+type SearchProps = {
+  search: string,
+  onSearch: (string) => void,
+  goBack: () => void,
+  goToSpecies: (Species) => void,
+};
+
+type SearchState = {
+  menuOpen: boolean,
+  name: 'common' | 'binomial-family' | 'binomial-genus',
+};
+
+class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
+  static defaultProps = {
+    search: '',
+    onSearch: () => {},
+    goBack: () => {},
+    goToSpecies: () => {},
+  };
+
+  state: SearchState;
+
+  constructor(props: SearchProps) {
+    super(props);
+    this.state = {
+      menuOpen: false,
+      name: 'binomial-genus',
+    };
+  }
+
+  toggleMenu() {
+    this.setState({menuOpen: !this.state.menuOpen});
+  }
+
+  render() {
+    return (
+      <View style={styles.outerView}>
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={this.props.goBack}>
+            <Image style={styles.backButton} source={require('../img/back.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.toggleMenu.bind(this)}>
+            <Text style={styles.marginTodo}>Search</Text>
+          </TouchableOpacity>
+          <View style={styles.backButton}></View>
+        </View>
+        {
+          this.state.menuOpen
+          ? <View style={styles.topBar}>
+              <Text style={styles.marginTodo}>Naming:</Text>
+              <TouchableOpacity onPress={() => this.setState({name: 'common'})}>
+                <Text style={this.state.name === 'common' ? styles.attrOn : styles.attrOff}>Common</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                if (this.state.name === 'common') {
+                  this.setState({name: 'binomial-genus'});
+                }
+              }}>
+                <Text style={this.state.name === 'common' ? styles.attrOff : styles.attrOn}>Binomial</Text>
+              </TouchableOpacity>
+            </View>
+          : undefined
+        }
+        {
+          this.state.menuOpen && this.state.name !== 'common'
+          ? <View style={styles.topBar}>
+              <Text style={styles.marginTodo}>Group by:</Text>
+              <TouchableOpacity onPress={() => this.setState({name: 'binomial-family'})}>
+                <Text style={this.state.name === 'binomial-family' ? styles.attrOn : styles.attrOff}>Family</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.setState({name: 'binomial-genus'})}>
+                <Text style={this.state.name === 'binomial-genus' ? styles.attrOn : styles.attrOff}>Genus</Text>
+              </TouchableOpacity>
+            </View>
+          : undefined
+        }
+        <Text>Search page goes here</Text>
+      </View>
+    );
+  }
+}
+
 type NomenState = {
   selected: Map<string, Set<string>>,
+  search: string,
   screen:
     {tag: 'attributes'} |
     {tag: 'results'} |
-    {tag: 'species', species: Species},
+    {tag: 'species', species: Species, backTo: 'results' | 'search'} |
+    {tag: 'search'},
 };
 
 export class NomenNative extends Component<void, {}, NomenState> {
@@ -427,7 +516,7 @@ export class NomenNative extends Component<void, {}, NomenState> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { selected: Map(), screen: {tag: 'attributes'} };
+    this.state = { selected: Map(), screen: {tag: 'attributes'}, search: '' };
   }
 
   render() {
@@ -437,17 +526,36 @@ export class NomenNative extends Component<void, {}, NomenState> {
           selected={this.state.selected}
           updateSelected={(sel) => this.setState({selected: sel})}
           goToResults={() => this.setState({screen: {tag: 'results'}})}
+          goToSearch={() => this.setState({screen: {tag: 'search'}})}
         />;
       case 'results':
         return <ResultsScreen
           results={dataset.score(this.state.selected)}
-          goToAttributes={() => this.setState({screen: {tag: 'attributes'}})}
-          goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec}})}
+          goBack={() => this.setState({screen: {tag: 'attributes'}})}
+          goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'results'}})}
         />;
       case 'species':
+        const backTo = this.state.screen.backTo;
         return <SpeciesScreen
           species={this.state.screen.species}
-          goToResults={() => this.setState({screen: {tag: 'results'}})}
+          goBack={() => {
+            // flow does not understand the obvious version
+            switch (backTo) {
+              case 'results':
+                this.setState({screen: {tag: 'results'}});
+                break;
+              case 'search':
+                this.setState({screen: {tag: 'search'}});
+                break;
+            }
+          }}
+        />;
+      case 'search':
+        return <SearchScreen
+          search={this.state.search}
+          onSearch={(search) => this.setState({search: search})}
+          goBack={() => this.setState({screen: {tag: 'attributes'}})}
+          goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'search'}})}
         />;
     }
   }
