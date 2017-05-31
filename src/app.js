@@ -422,20 +422,23 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
 
 type SearchProps = {
   search: string,
+  name: 'common' | 'binomial-family' | 'binomial-genus',
   onSearch: (string) => void,
+  onName: (string) => void,
   goBack: () => void,
   goToSpecies: (Species) => void,
 };
 
 type SearchState = {
   menuOpen: boolean,
-  name: 'common' | 'binomial-family' | 'binomial-genus',
 };
 
 class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
   static defaultProps = {
     search: '',
+    name: 'binomial-genus',
     onSearch: () => {},
+    onName: () => {},
     goBack: () => {},
     goToSpecies: () => {},
   };
@@ -446,7 +449,6 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
     super(props);
     this.state = {
       menuOpen: false,
-      name: 'binomial-genus',
     };
   }
 
@@ -472,7 +474,7 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
       });
     }
     return species.sort((x, y) => {
-      switch (this.state.name) {
+      switch (this.props.name) {
         case 'common':
           return x.displayName.localeCompare(y.displayName);
         case 'binomial-genus':
@@ -500,28 +502,28 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
           this.state.menuOpen
           ? <View style={styles.topBar}>
               <Text style={styles.marginTodo}>Naming:</Text>
-              <TouchableOpacity onPress={() => this.setState({name: 'common'})}>
-                <Text style={this.state.name === 'common' ? styles.attrOn : styles.attrOff}>Common</Text>
+              <TouchableOpacity onPress={() => this.props.onName('common')}>
+                <Text style={this.props.name === 'common' ? styles.attrOn : styles.attrOff}>Common</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {
-                if (this.state.name === 'common') {
-                  this.setState({name: 'binomial-genus'});
+                if (this.props.name === 'common') {
+                  this.props.onName('binomial-genus');
                 }
               }}>
-                <Text style={this.state.name === 'common' ? styles.attrOff : styles.attrOn}>Binomial</Text>
+                <Text style={this.props.name === 'common' ? styles.attrOff : styles.attrOn}>Binomial</Text>
               </TouchableOpacity>
             </View>
           : undefined
         }
         {
-          this.state.menuOpen && this.state.name !== 'common'
+          this.state.menuOpen && this.props.name !== 'common'
           ? <View style={styles.topBar}>
               <Text style={styles.marginTodo}>Group by:</Text>
-              <TouchableOpacity onPress={() => this.setState({name: 'binomial-family'})}>
-                <Text style={this.state.name === 'binomial-family' ? styles.attrOn : styles.attrOff}>Family</Text>
+              <TouchableOpacity onPress={() => this.props.onName('binomial-family')}>
+                <Text style={this.props.name === 'binomial-family' ? styles.attrOn : styles.attrOff}>Family</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.setState({name: 'binomial-genus'})}>
-                <Text style={this.state.name === 'binomial-genus' ? styles.attrOn : styles.attrOff}>Genus</Text>
+              <TouchableOpacity onPress={() => this.props.onName('binomial-genus')}>
+                <Text style={this.props.name === 'binomial-genus' ? styles.attrOn : styles.attrOff}>Genus</Text>
               </TouchableOpacity>
             </View>
           : undefined
@@ -530,13 +532,19 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
           style={styles.searchBar}
           value={this.props.search}
           onChangeText={(text) => this.props.onSearch(text)}
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoFocus={true}
         />
         <ScrollView>
         {
           this.results().map((species) =>
-            <TouchableOpacity style={styles.resultsRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
-              <Text style={styles.marginTodo}>
-                {this.state.name === 'common' ? species.displayName : species.name}
+            <TouchableOpacity style={styles.searchRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
+              <Text style={[styles.searchRowPrimary, this.props.name === 'common' ? undefined : styles.searchRowBinomial]}>
+                {this.props.name === 'common' ? species.displayName : species.name}
+              </Text>
+              <Text style={[styles.searchRowSecondary, this.props.name === 'common' ? styles.searchRowBinomial : undefined]}>
+                {this.props.name === 'common' ? species.name : species.displayName}
               </Text>
             </TouchableOpacity>
           )
@@ -550,6 +558,7 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
 type NomenState = {
   selected: Map<string, Set<string>>,
   search: string,
+  name: 'common' | 'binomial-genus' | 'binomial-family',
   screen:
     {tag: 'attributes'} |
     {tag: 'results'} |
@@ -562,7 +571,12 @@ export class NomenNative extends Component<void, {}, NomenState> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { selected: Map(), screen: {tag: 'attributes'}, search: '' };
+    this.state = {
+      selected: Map(),
+      screen: {tag: 'attributes'},
+      search: '',
+      name: 'binomial-genus',
+    };
   }
 
   render() {
@@ -599,7 +613,9 @@ export class NomenNative extends Component<void, {}, NomenState> {
       case 'search':
         return <SearchScreen
           search={this.state.search}
+          name={this.state.name}
           onSearch={(search) => this.setState({search: search})}
+          onName={(name) => this.setState({name: name})}
           goBack={() => this.setState({screen: {tag: 'attributes'}})}
           goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'search'}})}
         />;
@@ -735,5 +751,26 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     borderColor: '#C7C7C7',
     borderWidth: 2,
+  },
+  searchRow: {
+  },
+  searchRowPrimary: {
+    color: '#E7A740',
+    fontSize: 18,
+    marginLeft: 10,
+    marginTop: 7,
+    marginBottom: 2,
+    marginRight: 10,
+  },
+  searchRowSecondary: {
+    color: '#B0ADAD',
+    fontSize: 13,
+    marginLeft: 30,
+    marginTop: 2,
+    marginBottom: 7,
+    marginRight: 10,
+  },
+  searchRowBinomial: {
+    fontStyle: 'italic',
   },
 });
