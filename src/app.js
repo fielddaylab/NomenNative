@@ -10,7 +10,8 @@ import {
   Navigator,
   Image,
   Modal,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  TextInput
 } from 'react-native';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
@@ -453,6 +454,36 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
     this.setState({menuOpen: !this.state.menuOpen});
   }
 
+  results() {
+    const words = this.props.search.split(/\s+/).filter((word) => word !== '').map((word) => word.toLowerCase());
+    let species;
+    if (words.length === 0) {
+      species = dataset.species;
+    } else {
+      species = dataset.species.filter((spec) => {
+        const name = spec.name.toLowerCase();
+        const displayName = spec.displayName.toLowerCase();
+        for (const word of words) {
+          if (name.indexOf(word) === -1 && displayName.indexOf(word) === -1) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+    return species.sort((x, y) => {
+      switch (this.state.name) {
+        case 'common':
+          return x.displayName.localeCompare(y.displayName);
+        case 'binomial-genus':
+          return x.name.localeCompare(y.name);
+        case 'binomial-family':
+        default: // flow is dumb
+          return x.name.localeCompare(y.name); // TODO
+      }
+    });
+  }
+
   render() {
     return (
       <View style={styles.outerView}>
@@ -495,7 +526,22 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
             </View>
           : undefined
         }
-        <Text>Search page goes here</Text>
+        <TextInput
+          style={styles.searchBar}
+          value={this.props.search}
+          onChangeText={(text) => this.props.onSearch(text)}
+        />
+        <ScrollView>
+        {
+          this.results().map((species) =>
+            <TouchableOpacity style={styles.resultsRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
+              <Text style={styles.marginTodo}>
+                {this.state.name === 'common' ? species.displayName : species.name}
+              </Text>
+            </TouchableOpacity>
+          )
+        }
+        </ScrollView>
       </View>
     );
   }
@@ -681,5 +727,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 200,
     width: null,
+  },
+  searchBar: {
+    height: 40,
+    margin: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderColor: '#C7C7C7',
+    borderWidth: 2,
   },
 });
