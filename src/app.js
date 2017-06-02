@@ -346,6 +346,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
 
 type SpeciesState = {
   tab: string,
+  viewingImage: ?number, // I think this is right for RN require() images
 };
 
 type SpeciesProps = {
@@ -366,7 +367,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
 
   constructor(props: SpeciesProps) {
     super(props);
-    this.state = { tab: 'description' };
+    this.state = { tab: 'description', viewingImage: null };
   }
 
   render() {
@@ -378,10 +379,25 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
       <ScrollView>
         <Text style={styles.speciesCommon}>{this.props.species.displayName}</Text>
         <Text style={styles.speciesBinomial}>{this.props.species.name}</Text>
+        <ScrollView style={styles.speciesImageRow} horizontal={true}>
+          {
+            imgs.map((img) =>
+              <TouchableOpacity key={img} onPress={() => this.setState({viewingImage: img})}>
+                <Image source={img} style={styles.speciesImage} />
+              </TouchableOpacity>
+            )
+          }
+        </ScrollView>
         {
-          imgs.length === 0 ? undefined : (
-            <Image source={imgs[0]} />
-          )
+          this.state.viewingImage
+          ? <Modal>
+              <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({viewingImage: null})}>
+                <View style={styles.modalBackgroundBlack}>
+                  <Image source={this.state.viewingImage} style={styles.modalImage} />
+                </View>
+              </TouchableWithoutFeedback>
+            </Modal>
+          : undefined
         }
         <ScrollView horizontal={true} style={styles.attrValues}>
           {
@@ -424,7 +440,7 @@ type SearchProps = {
   search: string,
   name: 'common' | 'binomial-family' | 'binomial-genus',
   onSearch: (string) => void,
-  onName: (string) => void,
+  onName: ('common' | 'binomial-genus' | 'binomial-family') => void,
   goBack: () => void,
   goToSpecies: (Species) => void,
 };
@@ -706,6 +722,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     flex: 1,
   },
+  modalBackgroundBlack: {
+    backgroundColor: 'black',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   modalWhiteBox: {
     backgroundColor: 'white',
     margin: 60,
@@ -772,5 +794,17 @@ const styles = StyleSheet.create({
   },
   searchRowBinomial: {
     fontStyle: 'italic',
+  },
+  speciesImageRow: {
+    flexDirection: 'row',
+  },
+  speciesImage: {
+    height: 200,
+    width: 150,
+    resizeMode: 'cover'
+  },
+  modalImage: {
+    flex: 1,
+    resizeMode: 'contain'
   },
 });
