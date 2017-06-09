@@ -11,7 +11,8 @@ import {
   Image,
   Modal,
   TouchableWithoutFeedback,
-  TextInput
+  TextInput,
+  Linking
 } from 'react-native';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
@@ -377,8 +378,20 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         <Image style={styles.backButton} source={require('../img/back.png')} />
       </TouchableOpacity>
       <ScrollView>
-        <Text style={styles.speciesCommon}>{this.props.species.displayName}</Text>
-        <Text style={styles.speciesBinomial}>{this.props.species.name}</Text>
+        <View style={styles.speciesHeader}>
+          <View>
+            <Text style={styles.speciesCommon}>{this.props.species.displayName}</Text>
+            <Text style={styles.speciesBinomial}>{this.props.species.name}</Text>
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => {
+              // TODO remember siftr_id from incoming URL
+              Linking.openURL('siftr://?siftr_id=6234&nomen_id=1&species_id=' + this.props.species.name);
+            }}>
+              <Text style={styles.speciesCollect}>collect</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <ScrollView style={styles.speciesImageRow} horizontal={true}>
           {
             imgs.map((img) =>
@@ -806,5 +819,21 @@ const styles = StyleSheet.create({
   modalImage: {
     flex: 1,
     resizeMode: 'contain'
+  },
+  speciesHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between'
+  },
+  speciesCollect: {
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    borderColor: '#E7A740',
+    borderWidth: 1,
+    borderRadius: 15,
+    color: '#E7A740',
   },
 });
