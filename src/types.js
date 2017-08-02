@@ -9,7 +9,7 @@ function canoncalize(s: string): string {
 
 export function readCSV(csv: string): Array<Species> {
   const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
-  return data.map((row) => {
+  let dataset = data.map((row) => {
     const attrs = {};
     const tabs = {};
     const facts = {};
@@ -40,6 +40,43 @@ export function readCSV(csv: string): Array<Species> {
     }
     return new Species(scientific, common, family, description, Map(attrs), Map(tabs), Map(facts));
   });
+  let minHeight = Infinity;
+  let maxHeight = -Infinity;
+  for (const specimen of dataset) {
+    for (let height of Array.from(specimen.attributes.get('plant height'))) {
+      height = parseInt(height);
+      if (height < minHeight) minHeight = height;
+      if (height > maxHeight) maxHeight = height;
+    }
+  }
+  const categoryRange = (maxHeight - minHeight) / 8; // tweak this
+  const categories = [];
+  for (let i = 0; i < 8; i++) {
+    let lowerBound = Math.floor(minHeight + categoryRange * i);
+    let upperBound = Math.floor(minHeight + categoryRange * (i + 1) - 1);
+    if (i === 7) upperBound++;
+    categories.push([lowerBound, upperBound]);
+  }
+  for (const specimen of dataset) {
+    const matching = [];
+    let specMin = Infinity;
+    let specMax = -Infinity;
+    for (let height of Array.from(specimen.attributes.get('plant height'))) {
+      height = parseInt(height);
+      if (height < specMin) specMin = height;
+      if (height > specMax) specMax = height;
+    }
+    for (let cat of categories) {
+      let isOverlap = true;
+      if (specMax < cat[0]) isOverlap = false;
+      if (specMin > cat[1]) isOverlap = false;
+      if (isOverlap) {
+        matching.push(cat[0] + ' to ' + cat[1]);
+      }
+    }
+    specimen.attributes = specimen.attributes.set('plant height', Set(matching));
+  }
+  return dataset;
 }
 
 export class Species {

@@ -51,8 +51,18 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
 
   render() {
     const k = this.props.attrKey;
+    function compareAttrValues(a, b) {
+      if (k === 'flowering month') {
+        const order = ['apr', 'may', 'jun', 'jul', 'aug', 'sept', 'oct'];
+        return order.indexOf(a) - order.indexOf(b);
+      } else if (k === 'plant height') {
+        return parseInt(a) - parseInt(b); // will parse the lower bound x from "x to y"
+      } else {
+        return a.localeCompare(b);
+      }
+    }
     const anyOn = Array.from(this.props.attrValues).some((v) => this.props.isSelected(k, v));
-    const hidden = this.props.shouldHide && !this.state.userOpened
+    const hidden = this.props.shouldHide && !this.state.userOpened;
     return (
       <View style={styles.attrSection}>
         <TouchableOpacity
@@ -71,7 +81,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
           ? undefined
           : <ScrollView horizontal={true} style={styles.attrValues}>
               {
-                Array.from(this.props.attrValues).sort().map((v) => {
+                Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
                   const isOn = this.props.isSelected(k, v) || !anyOn;
                   return (
                     <TouchableOpacity style={styles.attributeButton} key={v}
