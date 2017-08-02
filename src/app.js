@@ -431,13 +431,6 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
                 </Text>
               )
             }
-            {
-              Array.from(this.props.species.tabs).map(([k, v]) =>
-                <Text style={styles.marginTodo} key={k}>
-                  {k}: {v}
-                </Text>
-              )
-            }
           </View> : <View>
             <Text style={styles.marginTodo}>
               { this.props.species.tabs.get(this.state.tab) }
@@ -509,6 +502,7 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
         case 'binomial-genus':
           return x.name.localeCompare(y.name);
         case 'binomial-family':
+          return x.family.localeCompare(y.family);
         default: // flow is dumb
           return x.name.localeCompare(y.name); // TODO
       }
@@ -567,16 +561,20 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
         />
         <ScrollView>
         {
-          this.results().map((species) =>
-            <TouchableOpacity style={styles.searchRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
+          this.results().map((species) => {
+            let scientific = species.name;
+            if (this.props.name === 'binomial-family') {
+              scientific = '(' + species.family + ') ' + species.name;
+            }
+            return <TouchableOpacity style={styles.searchRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
               <Text style={[styles.searchRowPrimary, this.props.name === 'common' ? undefined : styles.searchRowBinomial]}>
-                {this.props.name === 'common' ? species.displayName : species.name}
+                {this.props.name === 'common' ? species.displayName : scientific}
               </Text>
               <Text style={[styles.searchRowSecondary, this.props.name === 'common' ? styles.searchRowBinomial : undefined]}>
-                {this.props.name === 'common' ? species.name : species.displayName}
+                {this.props.name === 'common' ? scientific : species.displayName}
               </Text>
-            </TouchableOpacity>
-          )
+            </TouchableOpacity>;
+          })
         }
         </ScrollView>
       </View>

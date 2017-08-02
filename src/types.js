@@ -12,33 +12,53 @@ export function readCSV(csv: string): Array<Species> {
   return data.map((row) => {
     const attrs = {};
     const tabs = {};
+    const facts = {};
+    let scientific = '';
+    let common = '';
+    let family = '';
+    let description = '';
     for (let k in row) {
       let v = row[k];
       k = canoncalize(k);
-      if (k === 'name' || k === 'description' || k === 'display name') continue;
-      if (k.match(/^tab /)) {
-        tabs[k.slice('tab '.length)] = v;
+      if (k === 'scientific name') scientific = v;
+      else if (k === 'common name') common = v;
+      else if (k === 'genus') ;
+      else if (k === 'species') ;
+      else if (k === 'family') {
+        v = v.slice(v.indexOf('(') + 1);
+        v = v.slice(0, v.indexOf(')'));
+        family = v;
+      }
+      else if (k === 'description') description = v;
+      else if (k.match(/^description /)) {
+        tabs[k.slice('description '.length)] = v;
+      } else if (k.match(/^info /)) {
+        facts[k.slice('info '.length)] = v;
       } else {
         attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
       }
     }
-    return new Species(row.name, row.description, row.display_name, Map(attrs), Map(tabs));
+    return new Species(scientific, common, family, description, Map(attrs), Map(tabs), Map(facts));
   });
 }
 
 export class Species {
   name: string;
-  description: string;
   displayName: string;
+  family: string;
+  description: string;
   attributes: Map<string, Set<string>>;
   tabs: Map<string, string>;
+  facts: Map<string, string>;
 
-  constructor(name: string, description: string, displayName: string, attributes: Map<string, Set<string>> = Map(), tabs: Map<string, string> = Map()) {
-    this.name = name;
+  constructor(scientific: string, common: string, family: string, description: string, attributes: Map<string, Set<string>> = Map(), tabs: Map<string, string> = Map(), facts: Map<string, string> = Map()) {
+    this.name = scientific;
+    this.displayName = common;
+    this.family = family;
     this.description = description;
-    this.displayName = displayName;
     this.attributes = attributes;
     this.tabs = tabs;
+    this.facts = facts;
   }
 
   lookupKey(key: string): Set<string> {
