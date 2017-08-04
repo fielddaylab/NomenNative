@@ -17,10 +17,15 @@ import {
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
+import mcgee from '../plants/mcgee_A_L';
+import conifers from '../plants/conifers';
+
 import { readCSV, Dataset, Species } from './types';
 import { plants_csv, getFeatureImage, getSpeciesImages } from './plants';
 
-const dataset = new Dataset( readCSV(plants_csv) );
+const mcgee_specs = readCSV(mcgee);
+const conifers_specs = readCSV(conifers);
+const dataset = new Dataset( mcgee_specs.concat(conifers_specs) );
 
 type AttributeRowProps = {
   attrKey: string,

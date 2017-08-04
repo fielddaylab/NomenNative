@@ -43,7 +43,7 @@ export function readCSV(csv: string): Array<Species> {
   let minHeight = Infinity;
   let maxHeight = -Infinity;
   for (const specimen of dataset) {
-    for (let height of Array.from(specimen.attributes.get('plant height'))) {
+    for (let height of Array.from(specimen.attributes.get('plant height') || [])) {
       height = parseInt(height);
       if (height < minHeight) minHeight = height;
       if (height > maxHeight) maxHeight = height;
@@ -61,7 +61,7 @@ export function readCSV(csv: string): Array<Species> {
     const matching = [];
     let specMin = Infinity;
     let specMax = -Infinity;
-    for (let height of Array.from(specimen.attributes.get('plant height'))) {
+    for (let height of Array.from(specimen.attributes.get('plant height') || [])) {
       height = parseInt(height);
       if (height < specMin) specMin = height;
       if (height > specMax) specMax = height;
