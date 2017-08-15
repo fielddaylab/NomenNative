@@ -21,11 +21,11 @@ import mcgee from '../plants/mcgee_A_L';
 import conifers from '../plants/conifers';
 
 import { readCSV, Dataset, Species } from './types';
-import { plants_csv, getFeatureImage, getSpeciesImages } from './plants';
+import { getFeatureImage, getSpeciesImages } from './plants';
 
 const mcgee_specs = readCSV(mcgee);
-const conifers_specs = readCSV(conifers);
-const dataset = new Dataset( mcgee_specs.concat(conifers_specs) );
+// const conifers_specs = readCSV(conifers);
+const dataset = new Dataset( mcgee_specs );
 
 type AttributeRowProps = {
   attrKey: string,

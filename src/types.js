@@ -9,7 +9,8 @@ function canoncalize(s: string): string {
 
 export function readCSV(csv: string): Array<Species> {
   const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
-  let dataset = data.map((row) => {
+  let dataset = [];
+  for (const row of data) {
     const attrs = {};
     const tabs = {};
     const facts = {};
@@ -38,8 +39,9 @@ export function readCSV(csv: string): Array<Species> {
         attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
       }
     }
-    return new Species(scientific, common, family, description, Map(attrs), Map(tabs), Map(facts));
-  });
+    if (!(scientific.match(/\S/))) continue;
+    dataset.push(new Species(scientific, common, family, description, Map(attrs), Map(tabs), Map(facts)));
+  }
   let minHeight = Infinity;
   let maxHeight = -Infinity;
   for (const specimen of dataset) {
