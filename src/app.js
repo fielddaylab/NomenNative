@@ -24,8 +24,8 @@ import { readCSV, Dataset, Species } from './types';
 import { getFeatureImage, getSpeciesImages } from './plants';
 
 const mcgee_specs = readCSV(mcgee);
-// const conifers_specs = readCSV(conifers);
-const dataset = new Dataset( mcgee_specs );
+const conifers_specs = readCSV(conifers);
+const dataset = new Dataset( conifers_specs );
 
 type AttributeRowProps = {
   attrKey: string,

@@ -51,32 +51,34 @@ export function readCSV(csv: string): Array<Species> {
       if (height > maxHeight) maxHeight = height;
     }
   }
-  const categoryRange = (maxHeight - minHeight) / 8; // tweak this
-  const categories = [];
-  for (let i = 0; i < 8; i++) {
-    let lowerBound = Math.floor(minHeight + categoryRange * i);
-    let upperBound = Math.floor(minHeight + categoryRange * (i + 1) - 1);
-    if (i === 7) upperBound++;
-    categories.push([lowerBound, upperBound]);
-  }
-  for (const specimen of dataset) {
-    const matching = [];
-    let specMin = Infinity;
-    let specMax = -Infinity;
-    for (let height of Array.from(specimen.attributes.get('plant height') || [])) {
-      height = parseInt(height);
-      if (height < specMin) specMin = height;
-      if (height > specMax) specMax = height;
+  if (minHeight !== Infinity) {
+    const categoryRange = (maxHeight - minHeight) / 8; // tweak this
+    const categories = [];
+    for (let i = 0; i < 8; i++) {
+      let lowerBound = Math.floor(minHeight + categoryRange * i);
+      let upperBound = Math.floor(minHeight + categoryRange * (i + 1) - 1);
+      if (i === 7) upperBound++;
+      categories.push([lowerBound, upperBound]);
     }
-    for (let cat of categories) {
-      let isOverlap = true;
-      if (specMax < cat[0]) isOverlap = false;
-      if (specMin > cat[1]) isOverlap = false;
-      if (isOverlap) {
-        matching.push(cat[0] + ' to ' + cat[1]);
+    for (const specimen of dataset) {
+      const matching = [];
+      let specMin = Infinity;
+      let specMax = -Infinity;
+      for (let height of Array.from(specimen.attributes.get('plant height') || [])) {
+        height = parseInt(height);
+        if (height < specMin) specMin = height;
+        if (height > specMax) specMax = height;
       }
+      for (let cat of categories) {
+        let isOverlap = true;
+        if (specMax < cat[0]) isOverlap = false;
+        if (specMin > cat[1]) isOverlap = false;
+        if (isOverlap) {
+          matching.push(cat[0] + ' to ' + cat[1]);
+        }
+      }
+      specimen.attributes = specimen.attributes.set('plant height', Set(matching));
     }
-    specimen.attributes = specimen.attributes.set('plant height', Set(matching));
   }
   return dataset;
 }
