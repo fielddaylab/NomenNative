@@ -25,7 +25,7 @@ import { getFeatureImage, getSpeciesImages } from './plants';
 
 const mcgee_specs = readCSV(mcgee);
 const conifers_specs = readCSV(conifers);
-const dataset = new Dataset( conifers_specs );
+const dataset = new Dataset( mcgee_specs.concat(conifers_specs) );
 
 type AttributeRowProps = {
   attrKey: string,
@@ -183,6 +183,15 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
     return true;
   }
 
+  sortRows(rows, scored: Array<[Species, number]>) {
+    return rows.sort((a, b) => {
+      if (a[0] === 'planttype') return -1;
+      if (b[0] === 'planttype') return 1;
+      return a[0].localeCompare(b[0]);
+      // TODO: most useful rows on top
+    });
+  }
+
   render() {
     const scored = dataset.score(this.props.selected);
     let perfect = 0;
@@ -201,7 +210,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
         </TouchableOpacity>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
-            Array.from(dataset.attributes).map(([k, vs]) =>
+            this.sortRows(Array.from(dataset.attributes), scored).map(([k, vs]) =>
               <AttributeRow
                 key={k}
                 attrKey={k}

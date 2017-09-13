@@ -39,6 +39,7 @@ export function readCSV(csv: string): Array<Species> {
         attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
       }
     }
+    if (attrs.planttype == null) attrs.planttype = Set(['prairie plant']);
     if (!(scientific.match(/\S/))) continue;
     dataset.push(new Species(scientific, common, family, description, Map(attrs), Map(tabs), Map(facts)));
   }

@@ -163,7 +163,6 @@ export function getFeatureImage(k: string, v: string) {
 
 const species_images = {
 
-/*
   'abutilon_theophrasti-calyx-mi': require('../plants/species/abutilon_theophrasti-calyx-mi.jpg'),
   'abutilon_theophrasti-flower-mi': require('../plants/species/abutilon_theophrasti-flower-mi.jpg'),
   'abutilon_theophrasti-fruit-mi': require('../plants/species/abutilon_theophrasti-fruit-mi.jpg'),
@@ -825,7 +824,6 @@ const species_images = {
   'zizia_aurea-inflorescence-mi': require('../plants/species/zizia_aurea-inflorescence-mi.jpg'),
   'zizia_aurea-leaf1-mi': require('../plants/species/zizia_aurea-leaf1-mi.jpg'),
   'zizia_aurea-leaf2-mi': require('../plants/species/zizia_aurea-leaf2-mi.jpg'),
-*/
 
   'abies_balsamea-bark': require('../plants/species-conifers/Abies-balsamea/Abies-balsamea-bark.jpg'),
   'abies_balsamea-cones': require('../plants/species-conifers/Abies-balsamea/Abies-balsamea-cones.jpg'),
