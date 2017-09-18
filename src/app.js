@@ -190,10 +190,25 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
 
   sortRows(rows, scored: Array<[Species, number]>) {
     return rows.sort((a, b) => {
-      if (a[0] === 'planttype') return -1;
-      if (b[0] === 'planttype') return 1;
+      const simpleOrder = [
+        'planttype',
+        // conifers columns:
+        'growth form',
+        'needles',
+        'mature cone shape',
+        'cone type',
+        'needle color',
+        'needle petiole',
+        'needle cross section',
+        'needle length',
+        'berry placement',
+      ];
+      const i = simpleOrder.indexOf(a[0]);
+      const j = simpleOrder.indexOf(b[0]);
+      if (i !== -1 && j !== -1) return i - j;
+      if (i !== -1) return -1;
+      if (j !== -1) return 1;
       return a[0].localeCompare(b[0]);
-      // TODO: most useful rows on top
     });
   }
 
