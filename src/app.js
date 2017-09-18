@@ -23,9 +23,8 @@ import conifers from '../plants/conifers';
 import { readCSV, Dataset, Species } from './types';
 import { getFeatureImage, getSpeciesImages } from './plants';
 
-const mcgee_specs = readCSV(mcgee);
-const conifers_specs = readCSV(conifers);
-const dataset = new Dataset( mcgee_specs.concat(conifers_specs) );
+const mcgee_specs = new Dataset( readCSV(mcgee) );
+const conifers_specs = new Dataset( readCSV(conifers) );
 
 type AttributeRowProps = {
   attrKey: string,
@@ -128,14 +127,19 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
   }
 }
 
-type AttributesProps = {
+type AttributesDefaultProps = {
   selected: Map<string, Set<string>>,
   updateSelected: (Map<string, Set<string>>) => void,
   goToResults: () => void,
   goToSearch: () => void,
+  onBack: () => void,
 };
 
-class AttributesScreen extends Component<AttributesProps, AttributesProps, void> {
+type AttributesProps = AttributesDefaultProps & {
+  dataset: Dataset,
+};
+
+class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps, void> {
   constructor(props: AttributesProps) {
     super(props);
   }
@@ -145,6 +149,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
     updateSelected: () => {},
     goToResults: () => {},
     goToSearch: () => {},
+    onBack: () => {},
   };
 
   press(k: string, v: string): void {
@@ -193,7 +198,7 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
   }
 
   render() {
-    const scored = dataset.score(this.props.selected);
+    const scored = this.props.dataset.score(this.props.selected);
     let perfect = 0;
     for (let [species, score] of scored) {
       if (score == 1) {
@@ -205,12 +210,18 @@ class AttributesScreen extends Component<AttributesProps, AttributesProps, void>
 
     return (
       <View style={styles.outerView}>
-        <TouchableOpacity onPress={this.props.goToSearch}>
-          <Text style={styles.attrHeader}>Search</Text>
-        </TouchableOpacity>
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={this.props.onBack}>
+            <Image style={styles.backButton} source={require('../img/back.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.props.goToSearch}>
+            <Text style={styles.attrHeader}>Search</Text>
+          </TouchableOpacity>
+          <View style={styles.backButton}></View>
+        </View>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
-            this.sortRows(Array.from(dataset.attributes), scored).map(([k, vs]) =>
+            this.sortRows(Array.from(this.props.dataset.attributes), scored).map(([k, vs]) =>
               <AttributeRow
                 key={k}
                 attrKey={k}
@@ -466,7 +477,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
   }
 }
 
-type SearchProps = {
+type SearchDefaultProps = {
   search: string,
   name: 'common' | 'binomial-family' | 'binomial-genus',
   onSearch: (string) => void,
@@ -475,11 +486,15 @@ type SearchProps = {
   goToSpecies: (Species) => void,
 };
 
+type SearchProps = SearchDefaultProps & {
+  dataset: Dataset,
+};
+
 type SearchState = {
   menuOpen: boolean,
 };
 
-class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
+class SearchScreen extends Component<SearchDefaultProps, SearchProps, SearchState> {
   static defaultProps = {
     search: '',
     name: 'binomial-genus',
@@ -506,9 +521,9 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
     const words = this.props.search.split(/\s+/).filter((word) => word !== '').map((word) => word.toLowerCase());
     let species;
     if (words.length === 0) {
-      species = dataset.species;
+      species = this.props.dataset.species;
     } else {
-      species = dataset.species.filter((spec) => {
+      species = this.props.dataset.species.filter((spec) => {
         const name = spec.name.toLowerCase();
         const displayName = spec.displayName.toLowerCase();
         for (const word of words) {
@@ -541,7 +556,7 @@ class SearchScreen extends Component<SearchProps, SearchProps, SearchState> {
             <Image style={styles.backButton} source={require('../img/back.png')} />
           </TouchableOpacity>
           <TouchableOpacity onPress={this.toggleMenu.bind(this)}>
-            <Text style={styles.marginTodo}>Search</Text>
+            <Text style={styles.attrHeader}>Search</Text>
           </TouchableOpacity>
           <View style={styles.backButton}></View>
         </View>
@@ -617,10 +632,22 @@ type NomenState = {
     {tag: 'search'},
 };
 
-export class NomenNative extends Component<void, {}, NomenState> {
+type NomenDefaultProps = {
+  onBack: () => void,
+};
+
+type NomenProps = NomenDefaultProps & {
+  dataset: Dataset,
+};
+
+class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
+  static defaultProps = {
+    onBack: () => {},
+  };
+
   state: NomenState;
 
-  constructor(props: {}) {
+  constructor(props: NomenProps) {
     super(props);
     this.state = {
       selected: Map(),
@@ -638,10 +665,12 @@ export class NomenNative extends Component<void, {}, NomenState> {
           updateSelected={(sel) => this.setState({selected: sel})}
           goToResults={() => this.setState({screen: {tag: 'results'}})}
           goToSearch={() => this.setState({screen: {tag: 'search'}})}
+          dataset={this.props.dataset}
+          onBack={this.props.onBack}
         />;
       case 'results':
         return <ResultsScreen
-          results={dataset.score(this.state.selected)}
+          results={this.props.dataset.score(this.state.selected)}
           goBack={() => this.setState({screen: {tag: 'attributes'}})}
           goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'results'}})}
         />;
@@ -669,7 +698,41 @@ export class NomenNative extends Component<void, {}, NomenState> {
           onName={(name) => this.setState({name: name})}
           goBack={() => this.setState({screen: {tag: 'attributes'}})}
           goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'search'}})}
+          dataset={this.props.dataset}
         />;
+    }
+  }
+}
+
+type HomeState = {
+  dataset: 'conifers' | 'prairie' | null,
+};
+
+export class HomeScreen extends Component<void, {}, HomeState> {
+  state: HomeState;
+
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      dataset: null,
+    };
+  }
+
+  render() {
+    switch (this.state.dataset) {
+      case 'conifers':
+        return <NomenNative dataset={conifers_specs} onBack={() => this.setState({dataset: null})} />;
+      case 'prairie':
+        return <NomenNative dataset={mcgee_specs} onBack={() => this.setState({dataset: null})} />;
+      case null:
+        return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <TouchableOpacity style={styles.homeSelect} onPress={() => this.setState({dataset: 'conifers'})}>
+            <Text style={styles.homeSelectText}>Conifers</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.homeSelect} onPress={() => this.setState({dataset: 'prairie'})}>
+            <Text style={styles.homeSelectText}>Prairie Plants</Text>
+          </TouchableOpacity>
+        </View>;
     }
   }
 }
@@ -857,5 +920,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 15,
     color: '#E7A740',
+  },
+  homeSelect: {
+    margin: 20,
+  },
+  homeSelectText: {
+    fontSize: 20,
   },
 });

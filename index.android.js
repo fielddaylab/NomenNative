@@ -1,6 +1,6 @@
 // @flow
 
-import { NomenNative } from './src/app';
+import { HomeScreen } from './src/app';
 import { AppRegistry } from 'react-native';
 
-AppRegistry.registerComponent('NomenNative', () => NomenNative);
+AppRegistry.registerComponent('NomenNative', () => HomeScreen);
