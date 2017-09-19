@@ -14,6 +14,7 @@ import {
   TextInput,
   Linking
 } from 'react-native';
+import Lightbox from 'react-native-lightbox';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
@@ -438,7 +439,6 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
 
 type SpeciesState = {
   tab: string,
-  viewingImage: ?number, // I think this is right for RN require() images
 };
 
 type SpeciesProps = {
@@ -459,7 +459,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
 
   constructor(props: SpeciesProps) {
     super(props);
-    this.state = { tab: 'description', viewingImage: null };
+    this.state = { tab: 'description' };
   }
 
   render() {
@@ -486,23 +486,12 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         <ScrollView style={styles.speciesImageRow} horizontal={true}>
           {
             imgs.map((img) =>
-              <TouchableOpacity key={img} onPress={() => this.setState({viewingImage: img})}>
+              <Lightbox key={img} activeProps={{style: styles.speciesImageFull}}>
                 <Image source={img} style={styles.speciesImage} />
-              </TouchableOpacity>
+              </Lightbox>
             )
           }
         </ScrollView>
-        {
-          this.state.viewingImage
-          ? <Modal>
-              <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({viewingImage: null})}>
-                <View style={styles.modalBackgroundBlack}>
-                  <Image source={this.state.viewingImage} style={styles.modalImage} />
-                </View>
-              </TouchableWithoutFeedback>
-            </Modal>
-          : undefined
-        }
         <ScrollView horizontal={true} style={styles.attrValues}>
           {
             ['description'].concat(Array.from(this.props.species.tabs.keys())).map((k) =>
@@ -955,7 +944,13 @@ const styles = StyleSheet.create({
   speciesImage: {
     height: 200,
     width: 150,
-    resizeMode: 'cover'
+    resizeMode: 'cover',
+  },
+  speciesImageFull: {
+    height: null,
+    width: null,
+    resizeMode: 'contain',
+    flex: 1,
   },
   modalImage: {
     flex: 1,
