@@ -26,6 +26,44 @@ import { getFeatureImage, getSpeciesImages } from './plants';
 const mcgee_specs = new Dataset( readCSV(mcgee) );
 const conifers_specs = new Dataset( readCSV(conifers) );
 
+type OptionProps = {
+  onPress: () => void,
+  onModal: () => void,
+  image: any,
+  value: string,
+  active: boolean,
+};
+
+class AttributeOption extends Component<void, OptionProps, void> {
+  constructor(props: OptionProps) {
+    super(props);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.image !== nextProps.image) return true;
+    if (this.props.value !== nextProps.value) return true;
+    if (this.props.active !== nextProps.active) return true;
+    return false;
+  }
+
+  render() {
+    return (
+      <TouchableOpacity style={styles.attributeButton}
+        onPress={() => this.props.onPress()}
+        onLongPress={() => this.props.onModal()}
+      >
+        <Image
+          style={this.props.active ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
+          source={this.props.image}
+        />
+        <Text key={this.props.value} style={this.props.active ? styles.attrOn : styles.attrOff}>
+          {this.props.value}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+}
+
 type AttributeRowProps = {
   attrKey: string,
   attrValues: Array<string>,
@@ -100,24 +138,17 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
           : <ScrollView horizontal={true} style={styles.attrValues}>
               {
                 Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
-                  const isOn = isSelected(k, v) || !anyOn;
-                  return (
-                    <TouchableOpacity style={styles.attributeButton} key={v}
-                      onPress={() => this.props.onPressValue(k, v)}
-                      onLongPress={() => this.setState({modal: {
-                        header: k + ' - ' + v,
-                        info: 'Info about the attribute value goes here.'
-                      }})}
-                    >
-                      <Image
-                        style={isOn ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
-                        source={getFeatureImage(k, v)}
-                      />
-                      <Text key={v} style={isOn ? styles.attrOn : styles.attrOff}>
-                        {v}
-                      </Text>
-                    </TouchableOpacity>
-                  );
+                  return <AttributeOption
+                    active={isSelected(k, v) || !anyOn}
+                    onPress={() => this.props.onPressValue(k, v)}
+                    onModal={() => this.setState({modal: {
+                      header: k + ' - ' + v,
+                      info: 'Info about the attribute value goes here.'
+                    }})}
+                    image={getFeatureImage(k, v)}
+                    key={v}
+                    value={v}
+                  />;
                 })
               }
             </ScrollView>
