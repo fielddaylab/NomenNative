@@ -71,6 +71,7 @@ type AttributeRowProps = {
   selected: Map<string, Set<string>>,
   onPressValue: (string, string) => void,
   shouldHide: boolean,
+  dataset: Dataset,
 };
 
 type AttributeRowState = {
@@ -97,6 +98,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
     if (this.props.attrValues !== nextProps.attrValues) return true;
     if (this.props.selected !== nextProps.selected) return true;
     if (this.props.shouldHide !== nextProps.shouldHide) return true;
+    if (this.props.dataset !== nextProps.dataset) return true;
     if (this.state.userOpened !== nextState.userOpened) return true;
     if (this.state.modal !== nextState.modal) return true;
     return false;
@@ -104,6 +106,14 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
 
   render() {
     const k = this.props.attrKey;
+
+    const counts = {};
+    for (const spec of this.props.dataset.species) {
+      for (const v of spec.attributes.get(k, Set())) {
+        counts[v] = (counts[v] || 0) + 1;
+      }
+    }
+
     function compareAttrValues(a, b) {
       if (k === 'flowering month') {
         const order = ['apr', 'may', 'jun', 'jul', 'aug', 'sept', 'oct'];
@@ -111,7 +121,12 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
       } else if (k === 'plant height') {
         return parseInt(a) - parseInt(b); // will parse the lower bound x from "x to y"
       } else {
-        return a.localeCompare(b);
+        const compareCounts = (counts[b] || 0) - (counts[a] || 0);
+        if (compareCounts === 0) {
+          return a.localeCompare(b);
+        } else {
+          return compareCounts;
+        }
       }
     }
 
@@ -183,6 +198,7 @@ type AttributesDefaultProps = {
 
 type AttributesProps = AttributesDefaultProps & {
   dataset: Dataset,
+  results: Array<[Species, number]>,
 };
 
 class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps, void> {
@@ -216,11 +232,11 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
     this.props.updateSelected(Map());
   }
 
-  shouldHide(k: string, scored: Array<[Species, number]>): boolean {
+  shouldHide(k: string): boolean {
     if (this.props.selected.get(k, Set()).size !== 0) {
       return false;
     }
-    for (let [species, score] of scored) {
+    for (let [species, score] of this.props.results) {
       if (score == 1) {
         if (species.attributes.get(k, Set()).size !== 0) {
           return false;
@@ -255,9 +271,8 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
   }
 
   render() {
-    const scored = this.props.dataset.score(this.props.selected);
     let perfect = 0;
-    for (let [species, score] of scored) {
+    for (let [species, score] of this.props.results) {
       if (score == 1) {
         perfect++;
       } else {
@@ -278,14 +293,15 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
         </View>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
-            this.sortRows(Array.from(this.props.dataset.attributes), scored).map(([k, vs]) =>
+            this.sortRows(Array.from(this.props.dataset.attributes), this.props.results).map(([k, vs]) =>
               <AttributeRow
                 key={k}
                 attrKey={k}
                 attrValues={vs}
                 selected={this.props.selected}
                 onPressValue={this.press.bind(this)}
-                shouldHide={this.shouldHide(k, scored)}
+                shouldHide={this.shouldHide(k)}
+                dataset={this.props.dataset}
               />
             )
           }
@@ -703,10 +719,13 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
   }
 
   render() {
+    const results = this.props.dataset.score(this.state.selected);
+
     switch (this.state.screen.tag) {
       case 'attributes':
         return <AttributesScreen
           selected={this.state.selected}
+          results={results}
           updateSelected={(sel) => this.setState({selected: sel})}
           goToResults={() => this.setState({screen: {tag: 'results'}})}
           goToSearch={() => this.setState({screen: {tag: 'search'}})}
@@ -715,7 +734,7 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
         />;
       case 'results':
         return <ResultsScreen
-          results={this.props.dataset.score(this.state.selected)}
+          results={results}
           goBack={() => this.setState({screen: {tag: 'attributes'}})}
           goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'results'}})}
         />;
