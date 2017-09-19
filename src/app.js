@@ -29,7 +29,7 @@ const conifers_specs = new Dataset( readCSV(conifers) );
 type AttributeRowProps = {
   attrKey: string,
   attrValues: Array<string>,
-  isSelected: (string, string) => boolean,
+  selected: Map<string, Set<string>>,
   onPressValue: (string, string) => void,
   shouldHide: boolean,
 };
@@ -53,6 +53,16 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.attrKey !== nextProps.attrKey) return true;
+    if (this.props.attrValues !== nextProps.attrValues) return true;
+    if (this.props.selected !== nextProps.selected) return true;
+    if (this.props.shouldHide !== nextProps.shouldHide) return true;
+    if (this.state.userOpened !== nextState.userOpened) return true;
+    if (this.state.modal !== nextState.modal) return true;
+    return false;
+  }
+
   render() {
     const k = this.props.attrKey;
     function compareAttrValues(a, b) {
@@ -65,7 +75,11 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
         return a.localeCompare(b);
       }
     }
-    const anyOn = Array.from(this.props.attrValues).some((v) => this.props.isSelected(k, v));
+
+    const isSelected = (k: string, v: string): boolean => {
+      return this.props.selected.get(k, Set()).has(v);
+    }
+    const anyOn = Array.from(this.props.attrValues).some((v) => isSelected(k, v));
     const hidden = this.props.shouldHide && !this.state.userOpened;
     return (
       <View style={styles.attrSection}>
@@ -86,7 +100,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
           : <ScrollView horizontal={true} style={styles.attrValues}>
               {
                 Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
-                  const isOn = this.props.isSelected(k, v) || !anyOn;
+                  const isOn = isSelected(k, v) || !anyOn;
                   return (
                     <TouchableOpacity style={styles.attributeButton} key={v}
                       onPress={() => this.props.onPressValue(k, v)}
@@ -160,10 +174,6 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
         (vs: Set<string>) => vs.has(v) ? vs.delete(v) : vs.add(v)
       )
     );
-  }
-
-  isSelected(k: string, v: string): boolean {
-    return this.props.selected.get(k, Set()).has(v);
   }
 
   anySelection(): boolean {
@@ -241,7 +251,7 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
                 key={k}
                 attrKey={k}
                 attrValues={vs}
-                isSelected={this.isSelected.bind(this)}
+                selected={this.props.selected}
                 onPressValue={this.press.bind(this)}
                 shouldHide={this.shouldHide(k, scored)}
               />
