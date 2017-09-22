@@ -12,7 +12,8 @@ import {
   Modal,
   TouchableWithoutFeedback,
   TextInput,
-  Linking
+  Linking,
+  Platform
 } from 'react-native';
 import Lightbox from 'react-native-lightbox';
 import { Map, Set } from 'immutable';
@@ -825,7 +826,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'stretch',
     backgroundColor: 'white',
-    marginTop: 20, // TODO actually set this up for ios+android
+    marginTop: (Platform.OS === 'ios') ? 20 : 0,
   },
   scrollAttrs: {
     flex: 1,
