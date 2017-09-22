@@ -33,6 +33,7 @@ type OptionProps = {
   image: any,
   value: string,
   active: boolean,
+  available: boolean,
 };
 
 class AttributeOption extends Component<void, OptionProps, void> {
@@ -44,6 +45,7 @@ class AttributeOption extends Component<void, OptionProps, void> {
     if (this.props.image !== nextProps.image) return true;
     if (this.props.value !== nextProps.value) return true;
     if (this.props.active !== nextProps.active) return true;
+    if (this.props.available !== nextProps.available) return true;
     return false;
   }
 
@@ -54,10 +56,10 @@ class AttributeOption extends Component<void, OptionProps, void> {
         onLongPress={() => this.props.onModal()}
       >
         <Image
-          style={this.props.active ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
+          style={this.props.active || this.props.available ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
           source={this.props.image}
         />
-        <Text key={this.props.value} style={this.props.active ? styles.attrOn : styles.attrOff}>
+        <Text key={this.props.value} style={this.props.active ? styles.attrSelected : this.props.available ? styles.attrAvailable : styles.attrOff}>
           {this.props.value}
         </Text>
       </TouchableOpacity>
@@ -72,6 +74,7 @@ type AttributeRowProps = {
   onPressValue: (string, string) => void,
   shouldHide: boolean,
   dataset: Dataset,
+  results: Array<[Species, number]>,
 };
 
 type AttributeRowState = {
@@ -99,6 +102,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
     if (this.props.selected !== nextProps.selected) return true;
     if (this.props.shouldHide !== nextProps.shouldHide) return true;
     if (this.props.dataset !== nextProps.dataset) return true;
+    if (this.props.results !== nextProps.results) return true;
     if (this.state.userOpened !== nextState.userOpened) return true;
     if (this.state.modal !== nextState.modal) return true;
     return false;
@@ -130,8 +134,20 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
       }
     }
 
+    let perfect = [];
+    for (let [species, score] of this.props.results) {
+      if (score == 1) {
+        perfect.push(species);
+      } else {
+        break;
+      }
+    }
+
     const isSelected = (k: string, v: string): boolean => {
       return this.props.selected.get(k, Set()).has(v);
+    }
+    const isAvailable = (k: string, v: string): boolean => {
+      return perfect.some((spec) => spec.lookupKey(k).has(v));
     }
     const anyOn = Array.from(this.props.attrValues).some((v) => isSelected(k, v));
     const hidden = this.props.shouldHide && !this.state.userOpened;
@@ -155,7 +171,8 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
               {
                 Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
                   return <AttributeOption
-                    active={isSelected(k, v) || !anyOn}
+                    active={isSelected(k, v)}
+                    available={isAvailable(k, v)}
                     onPress={() => this.props.onPressValue(k, v)}
                     onModal={() => this.setState({modal: {
                       header: k + ' - ' + v,
@@ -302,6 +319,7 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
                 onPressValue={this.press.bind(this)}
                 shouldHide={this.shouldHide(k)}
                 dataset={this.props.dataset}
+                results={this.props.results}
               />
             )
           }
@@ -833,6 +851,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   attrOn: {
+    margin: 10,
+    textAlign: 'center',
+    color: 'black',
+  },
+  attrSelected: {
+    margin: 10,
+    textAlign: 'center',
+    color: '#3b3',
+  },
+  attrAvailable: {
     margin: 10,
     textAlign: 'center',
     color: 'black',
