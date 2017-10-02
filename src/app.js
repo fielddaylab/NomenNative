@@ -52,15 +52,16 @@ class AttributeOption extends Component<void, OptionProps, void> {
 
   render() {
     return (
-      <TouchableOpacity style={styles.attributeButton}
+      <TouchableOpacity
         onPress={() => this.props.onPress()}
         onLongPress={() => this.props.onModal()}
+        style={[styles.attributeButton, this.props.active ? styles.attrButtonSelected : styles.attrButtonUnselected]}
       >
         <Image
           style={this.props.active || this.props.available ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
           source={this.props.image}
         />
-        <Text key={this.props.value} style={this.props.active ? styles.attrSelected : this.props.available ? styles.attrAvailable : styles.attrOff}>
+        <Text key={this.props.value} style={this.props.active || this.props.available ? styles.attrAvailable : styles.attrOff}>
           {this.props.value}
         </Text>
       </TouchableOpacity>
@@ -73,13 +74,11 @@ type AttributeRowProps = {
   attrValues: Array<string>,
   selected: Map<string, Set<string>>,
   onPressValue: (string, string) => void,
-  shouldHide: boolean,
   dataset: Dataset,
   results: Array<[Species, number]>,
 };
 
 type AttributeRowState = {
-  userOpened: boolean,
   modal: ?{header: string, info: string},
 };
 
@@ -91,20 +90,12 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
     this.state = { userOpened: false, modal: null };
   }
 
-  componentWillReceiveProps(props) {
-    if (!props.shouldHide) {
-      this.setState({ userOpened: false });
-    }
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.attrKey !== nextProps.attrKey) return true;
     if (this.props.attrValues !== nextProps.attrValues) return true;
     if (this.props.selected !== nextProps.selected) return true;
-    if (this.props.shouldHide !== nextProps.shouldHide) return true;
     if (this.props.dataset !== nextProps.dataset) return true;
     if (this.props.results !== nextProps.results) return true;
-    if (this.state.userOpened !== nextState.userOpened) return true;
     if (this.state.modal !== nextState.modal) return true;
     return false;
   }
@@ -151,41 +142,37 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
       return perfect.some((spec) => spec.lookupKey(k).has(v));
     }
     const anyOn = Array.from(this.props.attrValues).some((v) => isSelected(k, v));
-    const hidden = this.props.shouldHide && !this.state.userOpened;
     return (
       <View style={styles.attrSection}>
         <TouchableOpacity
-          onPress={() => this.setState({userOpened: true})}
           onLongPress={() => this.setState({modal: {
             header: k,
             info: 'Info about the attribute goes here.'
           }})}
         >
-          <Text style={hidden ? styles.attrHeaderGray : styles.attrHeader}>
+          <Text style={styles.attrHeader}>
             {k.toUpperCase()}
           </Text>
         </TouchableOpacity>
         {
-          hidden
-          ? undefined
-          : <ScrollView horizontal={true} style={styles.attrValues}>
-              {
-                Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
-                  return <AttributeOption
-                    active={isSelected(k, v)}
-                    available={isAvailable(k, v)}
-                    onPress={() => this.props.onPressValue(k, v)}
-                    onModal={() => this.setState({modal: {
-                      header: k + ' - ' + v,
-                      info: 'Info about the attribute value goes here.'
-                    }})}
-                    image={getFeatureImage(k, v)}
-                    key={v}
-                    value={v}
-                  />;
-                })
-              }
-            </ScrollView>
+          <ScrollView horizontal={true} style={styles.attrValues}>
+            {
+              Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
+                return <AttributeOption
+                  active={isSelected(k, v)}
+                  available={isAvailable(k, v)}
+                  onPress={() => this.props.onPressValue(k, v)}
+                  onModal={() => this.setState({modal: {
+                    header: k + ' - ' + v,
+                    info: 'Info about the attribute value goes here.'
+                  }})}
+                  image={getFeatureImage(k, v)}
+                  key={v}
+                  value={v}
+                />;
+              })
+            }
+          </ScrollView>
         }
         {
           this.state.modal == null
@@ -206,6 +193,27 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
   }
 }
 
+type CollapsedRowsProps = {
+  rows: Array<string>,
+  onOpen: () => void,
+};
+
+class CollapsedRows extends Component<void, CollapsedRowsProps, void> {
+  render() {
+    return (
+      <View style={styles.attrSection}>
+        <TouchableOpacity
+          onPress={this.props.onOpen}
+        >
+          <Text style={styles.attrHeaderGray}>
+            {this.props.rows.length} {this.props.rows.length === 1 ? 'row' : 'rows'} hidden
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
+
 type AttributesDefaultProps = {
   selected: Map<string, Set<string>>,
   updateSelected: (Map<string, Set<string>>) => void,
@@ -219,10 +227,18 @@ type AttributesProps = AttributesDefaultProps & {
   results: Array<[Species, number]>,
 };
 
-class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps, void> {
+type AttributesState = {
+  userOpened: Set<string>,
+};
+
+class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps, AttributesState> {
   constructor(props: AttributesProps) {
     super(props);
+    this.state = {
+      userOpened: Set(),
+    };
   }
+  state: AttributesState;
 
   static defaultProps = {
     selected: Map(),
@@ -248,20 +264,35 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
 
   clearSearch(): void {
     this.props.updateSelected(Map());
+    this.setState({userOpened: Set()});
+  }
+
+  hidden: Set<string>;
+  computeHidden() {
+    const keys = [];
+    for (const k of this.props.dataset.attributes.keys()) {
+      const hidden = (() => {
+        if (this.state.userOpened.has(k)) {
+          return false;
+        }
+        if (this.props.selected.get(k, Set()).size !== 0) {
+          return false;
+        }
+        for (let [species, score] of this.props.results) {
+          if (score !== 1) break;
+          if (species.attributes.get(k, Set()).size !== 0) {
+            return false;
+          }
+        }
+        return true;
+      })();
+      if (hidden) keys.push(k);
+    }
+    this.hidden = Set(keys);
   }
 
   shouldHide(k: string): boolean {
-    if (this.props.selected.get(k, Set()).size !== 0) {
-      return false;
-    }
-    for (let [species, score] of this.props.results) {
-      if (score == 1) {
-        if (species.attributes.get(k, Set()).size !== 0) {
-          return false;
-        }
-      }
-    }
-    return true;
+    return this.hidden.has(k);
   }
 
   sortRows(rows, scored: Array<[Species, number]>) {
@@ -288,7 +319,51 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
     });
   }
 
+  computeRowCollapse() {
+    const self = this;
+    const elements = [];
+    const rows = this.sortRows(Array.from(this.props.dataset.attributes), this.props.results);
+    let i = 0;
+    while (i < rows.length) {
+      const [k, vs] = rows[i];
+      if (!this.shouldHide(k)) {
+        elements.push(<AttributeRow
+          key={k}
+          attrKey={k}
+          attrValues={vs}
+          selected={this.props.selected}
+          onPressValue={this.press.bind(this)}
+          dataset={this.props.dataset}
+          results={this.props.results}
+        />);
+        i++;
+      } else {
+        const collapsed = [k];
+        i++;
+        while (i < rows.length) {
+          const [k2, vs2] = rows[i];
+          if (this.shouldHide(k2)) {
+            collapsed.push(k2);
+          } else {
+            break;
+          }
+          i++;
+        }
+        elements.push(<CollapsedRows
+          key={collapsed.join('|')}
+          rows={collapsed}
+          onOpen={() => {
+            self.setState({userOpened: self.state.userOpened.union(collapsed)})
+          }}
+        />);
+      }
+    }
+    return elements;
+  }
+
   render() {
+    this.computeHidden();
+
     let perfect = 0;
     for (let [species, score] of this.props.results) {
       if (score == 1) {
@@ -298,6 +373,7 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
       }
     }
 
+    const self = this;
     return (
       <View style={styles.outerView}>
         <View style={styles.topBar}>
@@ -311,18 +387,7 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
         </View>
         <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
           {
-            this.sortRows(Array.from(this.props.dataset.attributes), this.props.results).map(([k, vs]) =>
-              <AttributeRow
-                key={k}
-                attrKey={k}
-                attrValues={vs}
-                selected={this.props.selected}
-                onPressValue={this.press.bind(this)}
-                shouldHide={this.shouldHide(k)}
-                dataset={this.props.dataset}
-                results={this.props.results}
-              />
-            )
+            this.computeRowCollapse()
           }
         </ScrollView>
         {
@@ -856,6 +921,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
   },
+  attrButtonSelected: {
+    backgroundColor: 'rgb(243,243,239)',
+  },
+  attrButtonUnselected: {
+    backgroundColor: 'white',
+  },
   attrSelected: {
     margin: 10,
     textAlign: 'center',
@@ -884,6 +955,9 @@ const styles = StyleSheet.create({
   attributeButton: {
     alignItems: 'center',
     flexDirection: 'column',
+    paddingTop: 5,
+    borderRadius: 5,
+    marginBottom: 5,
   },
   topBar: {
     justifyContent: 'space-between',
