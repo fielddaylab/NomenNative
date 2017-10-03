@@ -13,7 +13,8 @@ import {
   TouchableWithoutFeedback,
   TextInput,
   Linking,
-  Platform
+  Platform,
+  BackAndroid
 } from 'react-native';
 import Lightbox from 'react-native-lightbox';
 import { Map, Set } from 'immutable';
@@ -155,7 +156,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
           </Text>
         </TouchableOpacity>
         {
-          <ScrollView horizontal={true} style={styles.attrValues}>
+          <ScrollView horizontal={true} style={styles.attrValues} contentContainerStyle={{alignItems: 'flex-end'}}>
             {
               Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
                 return <AttributeOption
@@ -219,7 +220,7 @@ type AttributesDefaultProps = {
   updateSelected: (Map<string, Set<string>>) => void,
   goToResults: () => void,
   goToSearch: () => void,
-  onBack: () => void,
+  goBack: () => void,
 };
 
 type AttributesProps = AttributesDefaultProps & {
@@ -240,12 +241,24 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
   }
   state: AttributesState;
 
+  backHandler: () => boolean;
+  componentDidMount() {
+    this.backHandler = () => {
+      this.props.goBack();
+      return true;
+    };
+    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+  }
+  componentWillUnmount() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
+  }
+
   static defaultProps = {
     selected: Map(),
     updateSelected: () => {},
     goToResults: () => {},
     goToSearch: () => {},
-    onBack: () => {},
+    goBack: () => {},
   };
 
   press(k: string, v: string): void {
@@ -377,7 +390,7 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
     return (
       <View style={styles.outerView}>
         <View style={styles.topBar}>
-          <TouchableOpacity onPress={this.props.onBack}>
+          <TouchableOpacity onPress={this.props.goBack}>
             <Image style={styles.backButton} source={require('../img/back.png')} />
           </TouchableOpacity>
           <TouchableOpacity onPress={this.props.goToSearch}>
@@ -459,6 +472,18 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
       name: 'common',
       layout: 'list',
     };
+  }
+
+  backHandler: () => boolean;
+  componentDidMount() {
+    this.backHandler = () => {
+      this.props.goBack();
+      return true;
+    };
+    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+  }
+  componentWillUnmount() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   toggleMenu() {
@@ -581,6 +606,18 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
     this.state = { tab: 'description' };
   }
 
+  backHandler: () => boolean;
+  componentDidMount() {
+    this.backHandler = () => {
+      this.props.goBack();
+      return true;
+    };
+    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+  }
+  componentWillUnmount() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
+  }
+
   render() {
     const self = this;
     const imgs = getSpeciesImages(this.props.species);
@@ -687,6 +724,18 @@ class SearchScreen extends Component<SearchDefaultProps, SearchProps, SearchStat
 
   toggleMenu() {
     this.setState({menuOpen: !this.state.menuOpen});
+  }
+
+  backHandler: () => boolean;
+  componentDidMount() {
+    this.backHandler = () => {
+      this.props.goBack();
+      return true;
+    };
+    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+  }
+  componentWillUnmount() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   results() {
@@ -805,7 +854,7 @@ type NomenState = {
 };
 
 type NomenDefaultProps = {
-  onBack: () => void,
+  goBack: () => void,
 };
 
 type NomenProps = NomenDefaultProps & {
@@ -814,7 +863,7 @@ type NomenProps = NomenDefaultProps & {
 
 class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
   static defaultProps = {
-    onBack: () => {},
+    goBack: () => {},
   };
 
   state: NomenState;
@@ -841,7 +890,7 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
           goToResults={() => this.setState({screen: {tag: 'results'}})}
           goToSearch={() => this.setState({screen: {tag: 'search'}})}
           dataset={this.props.dataset}
-          onBack={this.props.onBack}
+          goBack={this.props.goBack}
         />;
       case 'results':
         return <ResultsScreen
@@ -896,9 +945,9 @@ export class HomeScreen extends Component<void, {}, HomeState> {
   render() {
     switch (this.state.dataset) {
       case 'conifers':
-        return <NomenNative dataset={conifers_specs} onBack={() => this.setState({dataset: null})} />;
+        return <NomenNative dataset={conifers_specs} goBack={() => this.setState({dataset: null})} />;
       case 'prairie':
-        return <NomenNative dataset={mcgee_specs} onBack={() => this.setState({dataset: null})} />;
+        return <NomenNative dataset={mcgee_specs} goBack={() => this.setState({dataset: null})} />;
       case null:
         return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <TouchableOpacity style={styles.homeSelect} onPress={() => this.setState({dataset: 'conifers'})}>
