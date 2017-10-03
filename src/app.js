@@ -582,6 +582,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
   }
 
   render() {
+    const self = this;
     const imgs = getSpeciesImages(this.props.species);
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goBack}>
@@ -624,11 +625,18 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
           this.state.tab === 'description' ? <View>
             <Text style={styles.marginTodo}>{this.props.species.description}</Text>
             {
-              Array.from(this.props.species.attributes).map(([k, v]) =>
-                <Text style={styles.marginTodo} key={k}>
-                  {k}: {v.join(', ')}
-                </Text>
-              )
+              (function(){
+                const attrRows = [];
+                for (const [k, v] of Array.from(self.props.species.attributes)) {
+                  if (v.size === 0) continue;
+                  attrRows.push(
+                    <Text style={styles.marginTodo} key={k}>
+                      {k}: {v.join(', ')}
+                    </Text>
+                  );
+                }
+                return attrRows;
+              })()
             }
           </View> : <View>
             <Text style={styles.marginTodo}>
