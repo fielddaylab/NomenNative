@@ -385,21 +385,40 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
           </TouchableOpacity>
           <View style={styles.backButton}></View>
         </View>
-        <ScrollView style={styles.scrollAttrs} contentContainerStyle={styles.scrollAttrsContent}>
+        <ScrollView style={[styles.scrollAttrs, {elevation: 1}]} contentContainerStyle={styles.scrollAttrsContent}>
           {
             this.computeRowCollapse()
           }
         </ScrollView>
-        {
-          this.anySelection() ?
-            <TouchableOpacity onPress={this.clearSearch.bind(this)}>
-              <Text style={styles.attrHeader}>Clear search</Text>
+        <View style={{
+          backgroundColor: 'white',
+          // android
+          elevation: 20,
+          // ios
+          shadowOffset: {width: 0, height: 5},
+          shadowColor: 'black',
+          shadowOpacity: 1,
+          shadowRadius: 5,
+        }}>
+          <Text style={[styles.attrHeader, {fontWeight: 'bold'}]}>{String(perfect)} {perfect === 1 ? 'RESULT' : 'RESULTS'}</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 7}}>
+            <TouchableOpacity style={{flex: 1}} onPress={this.clearSearch.bind(this)}>
+              {
+                this.anySelection()
+                ? <Text style={[styles.attrHeader, {color: 'rgb(188,188,188)'}]}>clear selections</Text>
+                : undefined
+              }
             </TouchableOpacity>
-          : undefined
-        }
-        <TouchableOpacity onPress={this.props.goToResults}>
-          <Text style={styles.attrHeader}>{String(perfect)} results</Text>
-        </TouchableOpacity>
+            <View style={{
+              backgroundColor: 'rgb(238,238,238)',
+              height: 20,
+              width: 2,
+            }} />
+            <TouchableOpacity style={{flex: 1}} onPress={this.props.goToResults}>
+              <Text style={styles.attrHeader}>view results</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }
@@ -897,6 +916,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollAttrsContent: {
+    backgroundColor: 'white',
   },
   attrSection: {
     borderBottomColor: '#F4F4F4',
