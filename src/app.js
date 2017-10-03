@@ -926,11 +926,13 @@ const styles = StyleSheet.create({
     margin: 10,
     textAlign: 'center',
     letterSpacing: 1,
+    fontSize: 16,
   },
   attrHeaderGray: {
     margin: 10,
     textAlign: 'center',
     color: 'gray',
+    fontSize: 16,
   },
   attrValues: {
     marginLeft: 12,
@@ -940,6 +942,7 @@ const styles = StyleSheet.create({
     margin: 10,
     textAlign: 'center',
     color: 'black',
+    fontSize: 16,
   },
   attrButtonSelected: {
     backgroundColor: 'rgb(243,243,239)',
@@ -947,23 +950,21 @@ const styles = StyleSheet.create({
   attrButtonUnselected: {
     backgroundColor: 'white',
   },
-  attrSelected: {
-    margin: 10,
-    textAlign: 'center',
-    color: '#3b3',
-  },
   attrAvailable: {
     margin: 10,
     textAlign: 'center',
     color: 'black',
+    fontSize: 16,
   },
   attrOff: {
     margin: 10,
     textAlign: 'center',
     color: '#bbb',
+    fontSize: 16,
   },
   marginTodo: {
     margin: 10,
+    fontSize: 16,
   },
   attributeImage: {
     height: 40,
@@ -981,7 +982,7 @@ const styles = StyleSheet.create({
   },
   topBar: {
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     flexDirection: 'row',
     borderBottomColor: '#F4F4F4',
     borderBottomWidth: 2,
