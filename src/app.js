@@ -470,7 +470,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
     this.state = {
       menuOpen: false,
       name: 'common',
-      layout: 'list',
+      layout: 'grid',
     };
   }
 
@@ -1127,10 +1127,12 @@ const styles = StyleSheet.create({
   gridRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    margin: 5,
   },
   gridSquare: {
     flex: 1,
     flexDirection: 'column',
+    margin: 5,
   },
   resultsGridImage: {
     flex: 1,
