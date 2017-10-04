@@ -24,7 +24,7 @@ import mcgee from '../plants/mcgee_A_L';
 import conifers from '../plants/conifers';
 
 import { readCSV, Dataset, Species } from './types';
-import { getFeatureImage, getSpeciesImages } from './plants';
+import { getFeatureImage, getSpeciesImages, glossary } from './plants';
 
 const mcgee_specs = new Dataset( readCSV(mcgee) );
 const conifers_specs = new Dataset( readCSV(conifers) );
@@ -583,6 +583,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
 
 type SpeciesState = {
   tab: string,
+  modal: ?{header: string, info: string},
 };
 
 type SpeciesProps = {
@@ -594,6 +595,25 @@ type SpeciesPropsDef = {
   goBack: () => void,
 };
 
+function addGlossaryTerms(text, onModal) {
+  const words = text.split(/\s+/).map((word) => {
+    const lookup = word.replace(/[^A-Za-z]/g, '').toLowerCase();
+    const lookup2 = lookup.match(/s$/) ? lookup.slice(0, lookup.length - 1) : lookup + 's';
+    const defn = glossary[lookup];
+    if (defn) {
+      return [<Text style={{color: 'blue'}} onPress={() => onModal(lookup, defn)}>{word}</Text>, ' '];
+    } else {
+      const defn2 = glossary[lookup2];
+      if (defn2) {
+        return [<Text style={{color: 'blue'}} onPress={() => onModal(lookup2, defn2)}>{word}</Text>, ' '];
+      } else {
+        return word + ' ';
+      }
+    }
+  });
+  return <Text>{words}</Text>;
+}
+
 class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesState> {
   static defaultProps = {
     goBack: () => {},
@@ -603,7 +623,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
 
   constructor(props: SpeciesProps) {
     super(props);
-    this.state = { tab: 'description' };
+    this.state = { tab: 'description', modal: null };
   }
 
   backHandler: () => boolean;
@@ -621,6 +641,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
   render() {
     const self = this;
     const imgs = getSpeciesImages(this.props.species);
+    const gloss = (text) => addGlossaryTerms(text, (word, defn) => this.setState({modal: {header: word, info: defn}}));
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goBack}>
         <Image style={styles.backButton} source={require('../img/back.png')} />
@@ -660,7 +681,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         </ScrollView>
         {
           this.state.tab === 'description' ? <View>
-            <Text style={styles.marginTodo}>{this.props.species.description}</Text>
+            <Text style={styles.marginTodo}>{gloss(this.props.species.description)}</Text>
             {
               (function(){
                 const attrRows = [];
@@ -668,7 +689,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
                   if (v.size === 0) continue;
                   attrRows.push(
                     <Text style={styles.marginTodo} key={k}>
-                      {k}: {v.join(', ')}
+                      { gloss(`${k}: ${v.join(', ')}`) }
                     </Text>
                   );
                 }
@@ -677,11 +698,25 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
             }
           </View> : <View>
             <Text style={styles.marginTodo}>
-              { this.props.species.tabs.get(this.state.tab) }
+              { gloss(this.props.species.tabs.get(this.state.tab)) }
             </Text>
           </View>
         }
       </ScrollView>
+      {
+        this.state.modal == null
+        ? undefined
+        : <Modal transparent={true}>
+            <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
+              <View style={styles.modalBackground}>
+                <View style={styles.modalWhiteBox}>
+                  <Text style={{margin: 20}}>{this.state.modal.header}</Text>
+                  <Text style={{margin: 20}}>{this.state.modal.info}</Text>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+      }
     </View>;
   }
 }
