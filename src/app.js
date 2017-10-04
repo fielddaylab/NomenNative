@@ -949,14 +949,42 @@ export class HomeScreen extends Component<void, {}, HomeState> {
       case 'prairie':
         return <NomenNative dataset={mcgee_specs} goBack={() => this.setState({dataset: null})} />;
       case null:
-        return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <TouchableOpacity style={styles.homeSelect} onPress={() => this.setState({dataset: 'conifers'})}>
-            <Text style={styles.homeSelectText}>Conifers</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.homeSelect} onPress={() => this.setState({dataset: 'prairie'})}>
-            <Text style={styles.homeSelectText}>Prairie Plants</Text>
-          </TouchableOpacity>
-        </View>;
+        return (
+          <View style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 16, letterSpacing: 1}}>
+              FLORA TYPE
+            </Text>
+            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'conifers'})}>
+              <Image style={styles.homeSelectImage} source={require('../plants/types/coniferous-tree.jpg')} />
+              <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Conifer</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'prairie'})}>
+              <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
+              <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
+              <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/shrub.jpg')} />
+              <View style={styles.homeSelectTextBox}>
+                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Shrub</Text>
+                <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
+              <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/tree-broadleaf.jpg')} />
+              <View style={styles.homeSelectTextBox}>
+                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Broadleaf Tree</Text>
+                <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.homeSelect]}>
+              <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/woody-vine.jpg')} />
+              <View style={styles.homeSelectTextBox}>
+                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Woody Vine</Text>
+                <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        );
     }
   }
 }
@@ -1173,9 +1201,31 @@ const styles = StyleSheet.create({
     color: '#E7A740',
   },
   homeSelect: {
-    margin: 20,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  homeSelectOff: {
+    opacity: 0.5,
+  },
+  homeSelectDivide: {
+    borderBottomColor: '#aaa',
+    borderBottomWidth: 1,
+  },
+  homeSelectImage: {
+    height: 60,
+    width: 60,
+  },
+  homeSelectTextBox: {
+    flex: 1,
+    marginLeft: 20,
   },
   homeSelectText: {
-    fontSize: 20,
+    fontSize: 25,
+    letterSpacing: 2,
+  },
+  homeSelectSoonText: {
+    fontSize: 13,
+    letterSpacing: 1,
   },
 });

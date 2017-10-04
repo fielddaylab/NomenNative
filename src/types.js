@@ -40,6 +40,8 @@ export function readCSV(csv: string): Array<Species> {
       }
     }
     if (attrs.planttype == null) attrs.planttype = Set(['prairie plant']);
+    // remove planttype for now
+    delete attrs.planttype;
     if (!(scientific.match(/\S/))) continue;
     dataset.push(new Species(scientific, common, family, description, Map(attrs), Map(tabs), Map(facts)));
   }
