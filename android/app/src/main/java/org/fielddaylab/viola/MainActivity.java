@@ -1,4 +1,4 @@
-package com.nomennative;
+package org.fielddaylab.viola;
 
 import com.facebook.react.ReactActivity;
 

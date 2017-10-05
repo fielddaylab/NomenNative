@@ -117,6 +117,8 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
         return order.indexOf(a) - order.indexOf(b);
       } else if (k === 'plant height') {
         return parseInt(a) - parseInt(b); // will parse the lower bound x from "x to y"
+      } else if (k === 'number flower parts') {
+        return a.localeCompare(b);
       } else {
         const compareCounts = (counts[b] || 0) - (counts[a] || 0);
         if (compareCounts === 0) {
