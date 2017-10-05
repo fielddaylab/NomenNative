@@ -22,17 +22,20 @@ import update from 'immutability-helper';
 
 import mcgee from '../plants/mcgee_A_L';
 import conifers from '../plants/conifers';
+import broadleaf from '../plants/broadleaf_trees';
 
 import { readCSV, Dataset, Species } from './types';
 import { getFeatureImage, getSpeciesImages, glossary } from './plants';
 
 const mcgee_specs = new Dataset( readCSV(mcgee) );
 const conifers_specs = new Dataset( readCSV(conifers) );
+const broadleaf_specs = new Dataset( readCSV(broadleaf) );
 
 type OptionProps = {
   onPress: () => void,
   onModal: () => void,
   image: any,
+  attribute: string,
   value: string,
   active: boolean,
   available: boolean,
@@ -52,16 +55,29 @@ class AttributeOption extends Component<void, OptionProps, void> {
   }
 
   render() {
+    const style = this.props.active || this.props.available ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff];
+    let img = <Image style={style} source={this.props.image} />;
+    if (this.props.attribute === 'needle color') {
+      if (this.props.value === 'green') img = <View style={[style, {backgroundColor: 'rgb(0,102,0)'}]} />;
+      else if (this.props.value === 'bluish green') img = <View style={[style, {backgroundColor: 'rgb(53,115,94)'}]} />;
+      else if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(255,229,153)'}]} />;
+    } else if (this.props.attribute === 'flower color') {
+      if (this.props.value === 'white') img = <View style={[style, {backgroundColor: '#eee'}]} />;
+      else if (this.props.value === 'purple') img = <View style={[style, {backgroundColor: 'rgb(145,45,141)'}]} />;
+      else if (this.props.value === 'pink') img = <View style={[style, {backgroundColor: 'rgb(253,111,194)'}]} />;
+      else if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(254,240,53)'}]} />;
+      else if (this.props.value === 'green') img = <View style={[style, {backgroundColor: 'rgb(23,165,85)'}]} />;
+      else if (this.props.value === 'blue') img = <View style={[style, {backgroundColor: 'rgb(29,175,236)'}]} />;
+      else if (this.props.value === 'orange') img = <View style={[style, {backgroundColor: 'rgb(240,101,48)'}]} />;
+      else if (this.props.value === 'red') img = <View style={[style, {backgroundColor: 'rgb(234,33,45)'}]} />;
+    }
     return (
       <TouchableOpacity
         onPress={() => this.props.onPress()}
         onLongPress={() => this.props.onModal()}
         style={[styles.attributeButton, this.props.active ? styles.attrButtonSelected : styles.attrButtonUnselected]}
       >
-        <Image
-          style={this.props.active || this.props.available ? styles.attributeImage : [styles.attributeImage, styles.attributeImageOff]}
-          source={this.props.image}
-        />
+        {img}
         <Text key={this.props.value} style={this.props.active || this.props.available ? styles.attrAvailable : styles.attrOff}>
           {this.props.value}
         </Text>
@@ -171,6 +187,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
                   }})}
                   image={getFeatureImage(k, v)}
                   key={v}
+                  attribute={k}
                   value={v}
                 />;
               })
@@ -311,22 +328,67 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
   }
 
   sortRows(rows, scored: Array<[Species, number]>) {
-    return rows.sort((a, b) => {
-      const simpleOrder = [
-        'planttype',
-        // conifers columns:
+    let order;
+    if (rows.some((row) => row[0] === 'berry placement')) {
+      // conifers
+      order = [
         'growth form',
         'needles',
-        'mature cone shape',
         'cone type',
+        'cone size',
         'needle color',
         'needle petiole',
         'needle cross section',
         'needle length',
         'berry placement',
+        'cone scale texture',
+        'cone placement',
+        'twig hair',
+        'branchlets',
       ];
-      const i = simpleOrder.indexOf(a[0]);
-      const j = simpleOrder.indexOf(b[0]);
+    } else if (rows.some((row) => row[0] === 'leaf length width ratio')) {
+      // broadleaf
+      order = [
+        'leaf arrangement',
+        'leaf type',
+        'leaf shape',
+        'leaflet shape',
+        'leaflet number',
+        'leaflet stalk',
+        'leaf margin',
+        'leaf or leaflet venation',
+        'maple sinus shape',
+        'leaf length width ratio',
+        'petiole cross section',
+        'asymmetrical leaf base?',
+        'leaf upper surface texture',
+        'leaf lower surface texture',
+        'milky sap present',
+      ];
+    } else {
+      // mcgee
+      order = [
+        'flower color',
+        'flower arrangement',
+        'flower symmetry',
+        'number flower parts',
+        'flowering month',
+        'leaf arrangement',
+        'leaf type',
+        'leaf shape',
+        'leaf margin',
+        'petiole present',
+        'leaf venation',
+        'stem shape',
+        'stem texture',
+        'plant height',
+        'growth form',
+        'distribution',
+      ];
+    }
+    return rows.sort((a, b) => {
+      const i = order.indexOf(a[0]);
+      const j = order.indexOf(b[0]);
       if (i !== -1 && j !== -1) return i - j;
       if (i !== -1) return -1;
       if (j !== -1) return 1;
@@ -966,7 +1028,7 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
 }
 
 type HomeState = {
-  dataset: 'conifers' | 'prairie' | null,
+  dataset: 'conifers' | 'prairie' | 'broadleaf' | null,
 };
 
 export class HomeScreen extends Component<void, {}, HomeState> {
@@ -985,6 +1047,8 @@ export class HomeScreen extends Component<void, {}, HomeState> {
         return <NomenNative dataset={conifers_specs} goBack={() => this.setState({dataset: null})} />;
       case 'prairie':
         return <NomenNative dataset={mcgee_specs} goBack={() => this.setState({dataset: null})} />;
+      case 'broadleaf':
+        return <NomenNative dataset={broadleaf_specs} goBack={() => this.setState({dataset: null})} />;
       case null:
         return (
           <View style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}>
@@ -999,17 +1063,14 @@ export class HomeScreen extends Component<void, {}, HomeState> {
               <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
               <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf'})}>
+              <Image style={styles.homeSelectImage} source={require('../plants/types/tree-broadleaf.jpg')} />
+              <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Broadleaf Tree</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
               <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/shrub.jpg')} />
               <View style={styles.homeSelectTextBox}>
-                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Shrub</Text>
-                <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
-              <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/tree-broadleaf.jpg')} />
-              <View style={styles.homeSelectTextBox}>
-                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Broadleaf Tree</Text>
+                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Broadleaf Shrub</Text>
                 <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
               </View>
             </TouchableOpacity>
