@@ -70,6 +70,16 @@ class AttributeOption extends Component<void, OptionProps, void> {
       else if (this.props.value === 'blue') img = <View style={[style, {backgroundColor: 'rgb(29,175,236)'}]} />;
       else if (this.props.value === 'orange') img = <View style={[style, {backgroundColor: 'rgb(240,101,48)'}]} />;
       else if (this.props.value === 'red') img = <View style={[style, {backgroundColor: 'rgb(234,33,45)'}]} />;
+    } else if (this.props.attribute === 'fall color') {
+      if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(255,255,102)'}]} />;
+      else if (this.props.value === 'orange') img = <View style={[style, {backgroundColor: 'rgb(255,153,0)'}]} />;
+      else if (this.props.value === 'red') img = <View style={[style, {backgroundColor: 'rgb(246,77,64)'}]} />;
+      else if (this.props.value === 'yellow-green') img = <View style={[style, {backgroundColor: 'rgb(255,153,0)'}]} />;
+      else if (this.props.value === 'brown') img = <View style={[style, {backgroundColor: 'rgb(153,102,51)'}]} />;
+      else if (this.props.value === 'burgundy') img = <View style={[style, {backgroundColor: 'rgb(153,0,0)'}]} />;
+      else if (this.props.value === 'copper') img = <View style={[style, {backgroundColor: 'black'}]} />; // TODO
+      else if (this.props.value === 'salmon') img = <View style={[style, {backgroundColor: 'rgb(255,174,133)'}]} />;
+      else if (this.props.value === 'silvery') img = <View style={[style, {backgroundColor: 'black'}]} />; // TODO
     }
     return (
       <TouchableOpacity
