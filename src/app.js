@@ -147,6 +147,9 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
             return parseInt(a) - parseInt(b);
           }
         }
+      } else if (k === 'needle length') {
+        const order = ['<1/2"', '1/2 - 1"', '1 - 2"', '<4"', '>4"'];
+        return order.indexOf(a) - order.indexOf(b);
       } else if (k === 'number flower parts') {
         return a.localeCompare(b);
       } else {
