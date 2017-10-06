@@ -555,6 +555,27 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
   }
 
   render() {
+    const possibleIndex = this.props.results.findIndex(([species, score]) => score < 1);
+    const perfect = possibleIndex === -1 ? this.props.results : this.props.results.slice(0, possibleIndex);
+    const notPerfect = possibleIndex === -1 ? [] : this.props.results.slice(possibleIndex);
+    const unlikelyIndex = notPerfect.findIndex(([species, score]) => score < 0.8);
+    const possible = unlikelyIndex === -1 ? notPerfect : notPerfect.slice(0, unlikelyIndex);
+    const unlikely = unlikelyIndex === -1 ? [] : notPerfect.slice(unlikelyIndex);
+    const resultsGroups = [];
+    if ( perfect.length > 0) { resultsGroups.push({groupHeader:  'PERFECT MATCHES', groupSpecies:  perfect}); }
+    if (possible.length > 0) { resultsGroups.push({groupHeader: 'POSSIBLE MATCHES', groupSpecies: possible}); }
+    if (unlikely.length > 0) { resultsGroups.push({groupHeader: 'UNLIKELY MATCHES', groupSpecies: unlikely}); }
+
+    function makeGroupHeader(str) {
+      return (
+        <View style={styles.groupHeader}>
+          <View style={styles.groupHeaderDecoration} />
+          <Text style={styles.groupHeaderText}>{str}</Text>
+          <View style={styles.groupHeaderDecoration} />
+        </View>
+      );
+    }
+
     return <View style={styles.outerView}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={this.props.goBack}>
@@ -595,22 +616,29 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
       <ScrollView>
         {
           this.state.layout === 'list'
-          ? this.props.results.map(([species, score]) =>
-              <TouchableOpacity style={styles.resultsRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
+          ? resultsGroups.map(({groupHeader, groupSpecies}) =>
+              <View key={groupHeader}>
+                { makeGroupHeader(groupHeader) }
                 {
-                  (() => {
-                    const imgs = getSpeciesImages(species);
-                    return (
-                      imgs.length === 0
-                      ? <View style={styles.resultsRowImage} />
-                      : <Image source={imgs[0]} style={styles.resultsRowImage} />
-                    );
-                  })()
+                  groupSpecies.map(([species, score]) =>
+                    <TouchableOpacity style={styles.resultsRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
+                      {
+                        (() => {
+                          const imgs = getSpeciesImages(species);
+                          return (
+                            imgs.length === 0
+                            ? <View style={styles.resultsRowImage} />
+                            : <Image source={imgs[0]} style={styles.resultsRowImage} />
+                          );
+                        })()
+                      }
+                      <Text style={styles.marginTodo}>
+                        {this.state.name === 'common' ? species.displayName : species.name}
+                      </Text>
+                    </TouchableOpacity>
+                  )
                 }
-                <Text style={styles.marginTodo}>
-                  {this.state.name === 'common' ? species.displayName : species.name} ({String(Math.floor(score * 100))}%)
-                </Text>
-              </TouchableOpacity>
+              </View>
             )
           : (() => {
               const makeGridSquare = (maybeSpecScore: ?[Species, number]) => {
@@ -627,16 +655,23 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
                         : <Image source={imgs[0]} style={styles.resultsGridImage} resizeMode="cover" />
                       }
                       <Text style={styles.marginTodo}>
-                        {this.state.name === 'common' ? species.displayName : species.name} ({String(Math.floor(score * 100))}%)
+                        {this.state.name === 'common' ? species.displayName : species.name}
                       </Text>
                     </TouchableOpacity>
                   );
                 }
               };
-              return arrayChunks(this.props.results, 2).map((specs) =>
-                <View key={specs[0][0].name} style={styles.gridRow}>
-                  {makeGridSquare(specs[0])}
-                  {makeGridSquare(specs[1])}
+              return resultsGroups.map(({groupHeader, groupSpecies}) =>
+                <View key={groupHeader}>
+                  { makeGroupHeader(groupHeader) }
+                  {
+                    arrayChunks(groupSpecies, 2).map((specs) =>
+                      <View key={specs[0][0].name} style={styles.gridRow}>
+                        {makeGridSquare(specs[0])}
+                        {makeGridSquare(specs[1])}
+                      </View>
+                    )
+                  }
                 </View>
               );
             })()
@@ -1345,5 +1380,19 @@ const styles = StyleSheet.create({
   expandHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  groupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  groupHeaderDecoration: {
+    height: 2,
+    flex: 1,
+    backgroundColor: '#ddd',
+  },
+  groupHeaderText: {
+    textAlign: 'center',
+    margin: 8,
+    letterSpacing: 1,
   },
 });
