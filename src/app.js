@@ -457,10 +457,10 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
           <TouchableOpacity onPress={this.props.goBack}>
             <Image style={styles.backButton} source={require('../img/back.png')} />
           </TouchableOpacity>
+          <Text style={styles.attrHeader}>Identify</Text>
           <TouchableOpacity onPress={this.props.goToSearch}>
-            <Text style={styles.attrHeader}>Search</Text>
+            <Image style={styles.searchButton} source={require('../img/search.png')} />
           </TouchableOpacity>
-          <View style={styles.backButton}></View>
         </View>
         <ScrollView style={[styles.scrollAttrs, {elevation: 1}]} contentContainerStyle={styles.scrollAttrsContent}>
           {
@@ -560,8 +560,9 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
         <TouchableOpacity onPress={this.props.goBack}>
           <Image style={styles.backButton} source={require('../img/back.png')} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.toggleMenu.bind(this)}>
-          <Text style={styles.marginTodo}>Results</Text>
+        <TouchableOpacity style={styles.expandHeader} onPress={this.toggleMenu.bind(this)}>
+          <Text style={styles.attrHeader}>Results</Text>
+          <Image source={require('../img/arrow-down.png')} style={styles.downButton} />
         </TouchableOpacity>
         <View style={styles.backButton}></View>
       </View>
@@ -1051,36 +1052,38 @@ export class HomeScreen extends Component<void, {}, HomeState> {
         return <NomenNative dataset={broadleaf_specs} goBack={() => this.setState({dataset: null})} />;
       case null:
         return (
-          <View style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}>
-            <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 16, letterSpacing: 1}}>
+          <View style={styles.outerView}>
+            <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 16, letterSpacing: 1, margin: 15}}>
               FLORA TYPE
             </Text>
-            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'conifers'})}>
-              <Image style={styles.homeSelectImage} source={require('../plants/types/coniferous-tree.jpg')} />
-              <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Conifer</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'prairie'})}>
-              <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
-              <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf'})}>
-              <Image style={styles.homeSelectImage} source={require('../plants/types/tree-broadleaf.jpg')} />
-              <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Broadleaf Tree</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
-              <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/shrub.jpg')} />
-              <View style={styles.homeSelectTextBox}>
-                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Broadleaf Shrub</Text>
-                <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.homeSelect]}>
-              <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/woody-vine.jpg')} />
-              <View style={styles.homeSelectTextBox}>
-                <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Woody Vine</Text>
-                <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
-              </View>
-            </TouchableOpacity>
+            <ScrollView style={{flex: 1}} contentContainerStyle={{alignItems: 'stretch'}}>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'conifers'})}>
+                <Image style={styles.homeSelectImage} source={require('../plants/types/coniferous-tree.jpg')} />
+                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Conifer</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'prairie'})}>
+                <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
+                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf'})}>
+                <Image style={styles.homeSelectImage} source={require('../plants/types/tree-broadleaf.jpg')} />
+                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Broadleaf Tree</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
+                <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/shrub.jpg')} />
+                <View style={styles.homeSelectTextBox}>
+                  <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Broadleaf Shrub</Text>
+                  <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.homeSelect]}>
+                <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/woody-vine.jpg')} />
+                <View style={styles.homeSelectTextBox}>
+                  <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Woody Vine</Text>
+                  <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
+                </View>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         );
     }
@@ -1106,7 +1109,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   attrHeader: {
-    margin: 10,
+    marginTop: 10,
+    marginBottom: 10,
     textAlign: 'center',
     letterSpacing: 1,
     fontSize: 16,
@@ -1184,8 +1188,18 @@ const styles = StyleSheet.create({
   },
   backButton: {
     margin: 10,
-    height: 44 * 0.4,
     width: 60 * 0.4,
+    height: 44 * 0.4,
+  },
+  searchButton: {
+    margin: 10,
+    width: 27 * 0.7,
+    height: 24 * 0.7,
+  },
+  downButton: {
+    margin: 10,
+    width: 48 * 0.4,
+    height: 24 * 0.4,
   },
   modalBackground: {
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -1327,5 +1341,9 @@ const styles = StyleSheet.create({
   homeSelectSoonText: {
     fontSize: 13,
     letterSpacing: 1,
+  },
+  expandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
