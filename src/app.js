@@ -604,42 +604,50 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
     }
 
     return <View style={styles.outerView}>
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={this.props.goBack}>
-          <Image style={styles.backButton} source={require('../img/back.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.expandHeader} onPress={this.toggleMenu.bind(this)}>
-          <Text style={styles.attrHeader}>Results</Text>
-          <Image source={require('../img/arrow-down.png')} style={styles.downButton} />
-        </TouchableOpacity>
-        <View style={styles.backButton}></View>
+      <View style={styles.topBarMulti}>
+        <View style={styles.topBarMultiRow}>
+          <TouchableOpacity onPress={this.props.goBack}>
+            <Image style={styles.backButton} source={require('../img/back.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.expandHeader} onPress={this.toggleMenu.bind(this)}>
+            <Text style={styles.attrHeader}>Results</Text>
+            <Image source={require('../img/arrow-down.png')} style={styles.downButton} />
+          </TouchableOpacity>
+          <View style={styles.backButton}></View>
+        </View>
+        {
+          this.state.menuOpen
+          ? <View style={styles.resultsDrawer}>
+              <View style={styles.resultsDrawerHeader}>
+                <Text style={styles.resultsDrawerHeaderText}>Naming</Text>
+              </View>
+              <View style={styles.resultsDrawerRow}>
+                <TouchableOpacity onPress={() => this.setState({name: 'common'})}>
+                  <View style={this.state.name === 'common' ? styles.resultsOptionOn : styles.resultsOptionOff}>
+                    <Text style={styles.resultsOptionText}>common</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.setState({name: 'binomial'})}>
+                  <View style={this.state.name === 'binomial' ? styles.resultsOptionOn : styles.resultsOptionOff}>
+                    <Text style={styles.resultsOptionText}>binomial</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.resultsDrawerHeader}>
+                <Text style={styles.resultsDrawerHeaderText}>Layout</Text>
+              </View>
+              <View style={styles.resultsDrawerRow}>
+                <TouchableOpacity onPress={() => this.setState({layout: 'grid'})}>
+                  <Image style={styles.resultsOptionIcon} source={this.state.layout === 'grid' ? require('../img/grid.png') : require('../img/grid-off.png')} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.setState({layout: 'list'})}>
+                  <Image style={styles.resultsOptionIcon} source={this.state.layout === 'list' ? require('../img/list.png') : require('../img/list-off.png')} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          : undefined
+        }
       </View>
-      {
-        this.state.menuOpen
-        ? <View style={styles.topBar}>
-            <Text style={styles.marginTodo}>Naming:</Text>
-            <TouchableOpacity onPress={() => this.setState({name: 'common'})}>
-              <Text style={this.state.name === 'common' ? styles.attrOn : styles.attrOff}>Common</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.setState({name: 'binomial'})}>
-              <Text style={this.state.name === 'binomial' ? styles.attrOn : styles.attrOff}>Binomial</Text>
-            </TouchableOpacity>
-          </View>
-        : undefined
-      }
-      {
-        this.state.menuOpen
-        ? <View style={styles.topBar}>
-            <Text style={styles.marginTodo}>Layout:</Text>
-            <TouchableOpacity onPress={() => this.setState({layout: 'list'})}>
-              <Text style={this.state.layout === 'list' ? styles.attrOn : styles.attrOff}>List</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.setState({layout: 'grid'})}>
-              <Text style={this.state.layout === 'grid' ? styles.attrOn : styles.attrOff}>Grid</Text>
-            </TouchableOpacity>
-          </View>
-        : undefined
-      }
       <ScrollView>
         {
           this.state.layout === 'list'
@@ -1235,6 +1243,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomColor: '#F4F4F4',
     borderBottomWidth: 2,
+  },
+  topBarMulti: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
+    borderBottomColor: '#F4F4F4',
+    borderBottomWidth: 2,
+  },
+  topBarMultiRow: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  resultsDrawer: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
+    paddingLeft: 80,
+    paddingRight: 80,
+  },
+  resultsDrawerHeader: {
+    borderBottomColor: '#F4F4F4',
+    borderBottomWidth: 2,
+  },
+  resultsDrawerHeaderText: {
+    letterSpacing: 1,
+  },
+  resultsDrawerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 16,
+  },
+  resultsOptionOn: {
+    borderBottomColor: 'black',
+    borderBottomWidth: 2,
+  },
+  resultsOptionOff: {
+  },
+  resultsOptionText: {
+    letterSpacing: 1,
+    marginTop: 9,
+    paddingBottom: 5,
+  },
+  resultsOptionIcon: {
+    height: 30,
+    width: 30,
+    marginTop: 9,
   },
   hidden: {
     opacity: 0
