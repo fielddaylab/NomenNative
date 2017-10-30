@@ -74,9 +74,9 @@ class AttributeOption extends Component<void, OptionProps, void> {
       if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(255,255,102)'}]} />;
       else if (this.props.value === 'orange') img = <View style={[style, {backgroundColor: 'rgb(255,153,0)'}]} />;
       else if (this.props.value === 'red') img = <View style={[style, {backgroundColor: 'rgb(246,77,64)'}]} />;
-      else if (this.props.value === 'yellow-green') img = <View style={[style, {backgroundColor: 'rgb(255,153,0)'}]} />;
+      else if (this.props.value === 'yellow-green') img = <View style={[style, {backgroundColor: 'rgb(238,252,170)'}]} />;
       else if (this.props.value === 'brown') img = <View style={[style, {backgroundColor: 'rgb(153,102,51)'}]} />;
-      else if (this.props.value === 'burgundy') img = <View style={[style, {backgroundColor: 'rgb(153,0,0)'}]} />;
+      else if (this.props.value === 'burgundy') img = <View style={[style, {backgroundColor: 'rgb(165,0,33)'}]} />;
       else if (this.props.value === 'copper') img = <View style={[style, {backgroundColor: 'black'}]} />; // TODO
       else if (this.props.value === 'salmon') img = <View style={[style, {backgroundColor: 'rgb(255,174,133)'}]} />;
       else if (this.props.value === 'silvery') img = <View style={[style, {backgroundColor: 'black'}]} />; // TODO
