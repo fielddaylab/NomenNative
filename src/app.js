@@ -721,13 +721,14 @@ type SpeciesState = {
   modal: ?{header: string, info: string},
 };
 
-type SpeciesProps = {
-  species: Species,
-  goBack: () => void,
-};
-
 type SpeciesPropsDef = {
   goBack: () => void,
+  openSpecies: (Species) => void,
+};
+
+type SpeciesProps = SpeciesPropsDef & {
+  species: Species,
+  dataset: Dataset,
 };
 
 function addGlossaryTerms(text, onModal) {
@@ -749,9 +750,32 @@ function addGlossaryTerms(text, onModal) {
   return <Text>{words}</Text>;
 }
 
+function addSpeciesLinks(text, dataset, openSpecies) {
+  let parts = [text];
+  dataset.species.forEach((species) => {
+    let newParts = [];
+    parts.forEach((part) => {
+      if (typeof part === 'string') {
+        const segments = part.split(new RegExp(species.name, 'i'));
+        for (var i = 0; i < segments.length; i++) {
+          newParts.push(segments[i]);
+          if (i !== segments.length - 1) {
+            newParts.push(<Text style={{color: 'blue'}} onPress={() => openSpecies(species)}>{species.name}</Text>);
+          }
+        }
+      } else {
+        newParts.push(part);
+      }
+    });
+    parts = newParts;
+  });
+  return React.createElement(Text, null, ...parts);
+}
+
 class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesState> {
   static defaultProps = {
     goBack: () => {},
+    openSpecies: () => {},
   };
 
   state: SpeciesState;
@@ -777,6 +801,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
     const self = this;
     const imgs = getSpeciesImages(this.props.species);
     const gloss = (text) => addGlossaryTerms(text, (word, defn) => this.setState({modal: {header: word, info: defn}}));
+    const lookalikes = (text) => addSpeciesLinks(text, this.props.dataset, this.props.openSpecies);
     return <View style={styles.outerView}>
       <TouchableOpacity onPress={this.props.goBack}>
         <Image style={styles.backButton} source={require('../img/back.png')} />
@@ -831,6 +856,10 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
                 return attrRows;
               })()
             }
+          </View> : this.state.tab === 'look-alikes' ? <View>
+            <Text style={styles.marginTodo}>
+              { lookalikes(this.props.species.tabs.get(this.state.tab)) }
+            </Text>
           </View> : <View>
             <Text style={styles.marginTodo}>
               { gloss(this.props.species.tabs.get(this.state.tab)) }
@@ -1072,6 +1101,7 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
         const backTo = this.state.screen.backTo;
         return <SpeciesScreen
           species={this.state.screen.species}
+          dataset={this.props.dataset}
           goBack={() => {
             // flow does not understand the obvious version
             switch (backTo) {
@@ -1082,6 +1112,13 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
                 this.setState({screen: {tag: 'search'}});
                 break;
             }
+          }}
+          openSpecies={(species) => {
+            this.setState({screen: {
+              tag: 'species',
+              species: species,
+              backTo: backTo,
+            }});
           }}
         />;
       case 'search':
