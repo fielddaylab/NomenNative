@@ -1124,7 +1124,7 @@ export class HomeScreen extends Component<void, {}, HomeState> {
         return (
           <View style={styles.outerView}>
             <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 16, letterSpacing: 1, margin: 15}}>
-              FLORA TYPE
+              PLANT TYPE
             </Text>
             <ScrollView style={{flex: 1}} contentContainerStyle={{alignItems: 'stretch'}}>
               <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'conifers'})}>
@@ -1133,7 +1133,7 @@ export class HomeScreen extends Component<void, {}, HomeState> {
               </TouchableOpacity>
               <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'prairie'})}>
                 <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
-                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb</Text>
+                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb / Forb</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf'})}>
                 <Image style={styles.homeSelectImage} source={require('../plants/types/tree-broadleaf.jpg')} />
