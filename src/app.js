@@ -224,7 +224,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
         {
           this.state.modal == null
           ? undefined
-          : <Modal transparent={true}>
+          : <Modal transparent={true} onRequestClose={() => this.setState({modal: null})}>
               <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
                 <View style={styles.modalBackground}>
                   <View style={styles.modalWhiteBox}>
@@ -841,7 +841,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
       {
         this.state.modal == null
         ? undefined
-        : <Modal transparent={true}>
+        : <Modal transparent={true} onRequestClose={() => this.setState({modal: null})}>
             <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
               <View style={styles.modalBackground}>
                 <View style={styles.modalWhiteBox}>
