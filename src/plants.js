@@ -51,8 +51,8 @@ const feature_images = {
 'fruit_type/single_samara': require('../plants/features-oct/fruit_type/single-samara.jpg'),
 'growth_form/sprawling': require('../plants/features-oct/growth_form/sprawling.jpg'),
 'growth_form/upright_branching': require('../plants/features-oct/growth_form/upright_branching.jpg'),
-'growth_form/upright_no/few_branches': require('../plants/features-oct/growth_form/upright_few_branches.jpg'), // correct?
-'growth_form/upright_singular': require('../plants/features-oct/growth_form/upright_no_branches.jpg'), // correct?
+'growth_form/upright_no/few_branches': require('../plants/features-oct/growth_form/upright_few_branches.jpg'),
+'growth_form/upright_singular': require('../plants/features-oct/growth_form/upright_no_branches.jpg'),
 // require('../plants/features-oct/habit/coniferous-shrub.jpg'),
 // require('../plants/features-oct/habit/coniferous-tree.jpg'),
 // require('../plants/features-oct/habit/herb.jpg'),
@@ -65,17 +65,16 @@ const feature_images = {
 'leaf_arrangement/opposite': require('../plants/features-oct/leaf_arrangement/opposite4.jpg'),
 'leaf_arrangement/whorled': require('../plants/features-oct/leaf_arrangement/whorled.jpg'),
 'leaf_margin/coarsely_toothed': require('../plants/features-oct/leaf_margin/coarsely_toothed.jpg'),
-'leaf_margin/toothed': require('../plants/features-oct/leaf_margin/doubly_toothed.jpg'), // correct?
+'leaf_margin/toothed': require('../plants/features-oct/leaf_margin/doubly_toothed.jpg'),
 'leaf_margin/doubly_toothed': require('../plants/features-oct/leaf_margin/doubly_toothed.jpg'),
 'leaf_margin/entire': require('../plants/features-oct/leaf_margin/entire.jpg'),
 'leaf_margin/finely_toothed': require('../plants/features-oct/leaf_margin/finely_toothed.jpg'),
 'leaf_margin/pointed_lobes': require('../plants/features-oct/leaf_margin/pointy_lobes.jpg'),
 // require('../plants/features-oct/leaf_margin/revolute.jpg'),
-'leaf_margin/lobed': require('../plants/features-oct/leaf_margin/rounded_lobes.jpg'), // correct?
+'leaf_margin/lobed': require('../plants/features-oct/leaf_margin/rounded_lobes.jpg'),
 'leaf_margin/rounded_lobes': require('../plants/features-oct/leaf_margin/rounded_lobes.jpg'),
 'leaf_margin/spiny': require('../plants/features-oct/leaf_margin/spiny.jpg'),
 'leaf_margin/wavy': require('../plants/features-oct/leaf_margin/wavy.jpg'),
-'leaf_shape/cordiform': require('../plants/features-oct/leaf_shape/cordate.jpg'), // correct?
 'leaf_shape/cordate': require('../plants/features-oct/leaf_shape/cordate.jpg'),
 'leaf_shape/deltoid': require('../plants/features-oct/leaf_shape/deltoid.jpg'),
 'leaf_shape/elliptic': require('../plants/features-oct/leaf_shape/elliptic.jpg'),
@@ -153,9 +152,9 @@ const feature_images = {
 'branchlets/branchlets_not_flattened': require('../plants/features-oct/conifers/branchlets/branchlets-not-flattened.jpg'),
 'cone_placement/cones_point_towards_tip_of_branches': require('../plants/features-oct/conifers/cone_placement/point-to-tip.jpg'),
 'cone_placement/cones_point_towards_trunk': require('../plants/features-oct/conifers/cone_placement/point-to-trunk.jpg'),
-'cone_type/pendant_cone': require('../plants/features-oct/conifers/cone_shape/egg-shaped.jpg'), // correct?
-'cone_type/erect_cone': require('../plants/features-oct/conifers/cone_shape/elongate.jpg'), // correct?
-'cone_type/berry-like_cone': require('../plants/features-oct/conifers/cone_shape/round.jpg'), // correct?
+// require('../plants/features-oct/conifers/cone_shape/egg-shaped.jpg'),
+// require('../plants/features-oct/conifers/cone_shape/elongate.jpg'),
+// require('../plants/features-oct/conifers/cone_shape/round.jpg'),
 'cone_size/blue_berry': require('../plants/features-oct/conifers/cone_type/blue-berry.jpg'),
 'cone_size/>2"': require('../plants/features-oct/conifers/cone_type/large-cone.jpg'),
 'cone_size/red_berry': require('../plants/features-oct/conifers/cone_type/red-berry.jpg'),
