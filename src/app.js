@@ -392,8 +392,8 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
         'leaf arrangement',
         'leaf type',
         'leaf shape',
-        'leaflet shape',
         'leaflet number',
+        'leaflet shape',
         'leaflet stalk',
         'leaf margin',
         'leaf or leaflet venation',
@@ -404,6 +404,15 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
         'leaf upper surface texture',
         'leaf lower surface texture',
         'milky sap present',
+        'thorns on twig',
+        'flower type',
+        'flower color',
+        'flower symmetry',
+        'fruit type',
+        'ripe fruit color',
+        'bark texture',
+        'fall color',
+        'special bark color?',
       ];
     } else {
       // mcgee
