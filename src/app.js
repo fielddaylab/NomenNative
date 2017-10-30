@@ -106,7 +106,7 @@ type AttributeRowProps = {
 };
 
 type AttributeRowState = {
-  modal: ?{header: string, info: string},
+  modal: ?{header: string, info: string, image?: any},
 };
 
 class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState> {
@@ -193,7 +193,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
         <TouchableOpacity
           onLongPress={() => this.setState({modal: {
             header: k,
-            info: 'Info about the attribute goes here.'
+            info: ''
           }})}
         >
           <Text style={styles.attrHeader}>
@@ -204,15 +204,17 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
           <ScrollView horizontal={true} style={styles.attrValues} contentContainerStyle={{alignItems: 'flex-end'}}>
             {
               Array.from(this.props.attrValues).sort(compareAttrValues).map((v) => {
+                const img = getFeatureImage(k, v);
                 return <AttributeOption
                   active={isSelected(k, v)}
                   available={isAvailable(k, v)}
                   onPress={() => this.props.onPressValue(k, v)}
                   onModal={() => this.setState({modal: {
                     header: k + ' - ' + v,
-                    info: 'Info about the attribute value goes here.'
+                    info: '',
+                    image: img,
                   }})}
-                  image={getFeatureImage(k, v)}
+                  image={img}
                   key={v}
                   attribute={k}
                   value={v}
@@ -228,6 +230,17 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
               <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
                 <View style={styles.modalBackground}>
                   <View style={styles.modalWhiteBox}>
+                    {
+                      this.state.modal.image == null ? undefined :
+                        <Image
+                          source={this.state.modal.image}
+                          style={{
+                            resizeMode: 'contain',
+                            height: 150,
+                            width: 150,
+                          }}
+                        />
+                    }
                     <Text style={{margin: 20}}>{this.state.modal.header}</Text>
                     <Text style={{margin: 20}}>{this.state.modal.info}</Text>
                   </View>
