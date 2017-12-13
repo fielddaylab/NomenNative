@@ -14,7 +14,7 @@ import {
   TextInput,
   Linking,
   Platform,
-  BackAndroid
+  BackHandler
 } from 'react-native';
 import Lightbox from 'react-native-lightbox';
 import { Map, Set } from 'immutable';
@@ -306,10 +306,10 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
       this.props.goBack();
       return true;
     };
-    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   static defaultProps = {
@@ -593,10 +593,10 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
       this.props.goBack();
       return true;
     };
-    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   toggleMenu() {
@@ -813,10 +813,10 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
       this.props.goBack();
       return true;
     };
-    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   render() {
@@ -953,10 +953,10 @@ class SearchScreen extends Component<SearchDefaultProps, SearchProps, SearchStat
       this.props.goBack();
       return true;
     };
-    BackAndroid.addEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackAndroid.removeEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   results() {

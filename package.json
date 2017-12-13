@@ -9,9 +9,10 @@
   },
   "dependencies": {
     "immutability-helper": "^2.1.2",
+    "immutable": "^3.8.2",
     "papaparse": "^4.2.0",
-    "react": "16.0.0-alpha.6",
-    "react-native": "0.43.4",
+    "react": "16.0.0",
+    "react-native": "0.51.0",
     "react-native-lightbox": "^0.7.0"
   },
   "devDependencies": {
@@ -19,7 +20,7 @@
     "babel-preset-react-native": "1.9.1",
     "flow-bin": "0.40.0",
     "jest": "19.0.2",
-    "react-test-renderer": "16.0.0-alpha.6"
+    "react-test-renderer": "16.0.0"
   },
   "jest": {
     "preset": "react-native"
