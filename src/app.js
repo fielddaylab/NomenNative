@@ -746,6 +746,8 @@ type SpeciesState = {
 type SpeciesPropsDef = {
   goBack: () => void,
   openSpecies: (Species) => void,
+  viola: boolean,
+  onViolaCollect: ({nomen_id: number, species_id: string}) => void,
 };
 
 type SpeciesProps = SpeciesPropsDef & {
@@ -754,16 +756,16 @@ type SpeciesProps = SpeciesPropsDef & {
 };
 
 function addGlossaryTerms(text, onModal) {
-  const words = text.split(/\s+/).map((word) => {
+  const words = text.split(/\s+/).map((word, i) => {
     const lookup = word.replace(/[^A-Za-z]/g, '').toLowerCase();
     const lookup2 = lookup.match(/s$/) ? lookup.slice(0, lookup.length - 1) : lookup + 's';
     const defn = glossary[lookup];
     if (defn) {
-      return [<Text style={{color: 'blue'}} onPress={() => onModal(lookup, defn)}>{word}</Text>, ' '];
+      return [<Text key={i} style={{color: 'blue'}} onPress={() => onModal(lookup, defn)}>{word}</Text>, ' '];
     } else {
       const defn2 = glossary[lookup2];
       if (defn2) {
-        return [<Text style={{color: 'blue'}} onPress={() => onModal(lookup2, defn2)}>{word}</Text>, ' '];
+        return [<Text key={i} style={{color: 'blue'}} onPress={() => onModal(lookup2, defn2)}>{word}</Text>, ' '];
       } else {
         return word + ' ';
       }
@@ -798,6 +800,8 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
   static defaultProps = {
     goBack: () => {},
     openSpecies: () => {},
+    viola: false,
+    onViolaCollect: () => {},
   };
 
   state: SpeciesState;
@@ -835,12 +839,15 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
             <Text style={styles.speciesBinomial}>{this.props.species.name}</Text>
           </View>
           <View>
-            <TouchableOpacity onPress={() => {
-              // TODO remember siftr_id from incoming URL
-              Linking.openURL('siftr://?siftr_id=6234&nomen_id=1&species_id=' + this.props.species.name);
-            }}>
-              <Text style={styles.speciesCollect}>collect</Text>
-            </TouchableOpacity>
+            {
+              this.props.viola ? (
+                <TouchableOpacity onPress={() => {
+                  this.props.onViolaCollect({nomen_id: 1, species_id: this.props.species.name});
+                }}>
+                  <Text style={styles.speciesCollect}>collect</Text>
+                </TouchableOpacity>
+              ) : undefined
+            }
           </View>
         </View>
         <ScrollView style={styles.speciesImageRow} horizontal={true}>
@@ -1076,6 +1083,8 @@ type NomenState = {
 
 type NomenDefaultProps = {
   goBack: () => void,
+  viola: bool,
+  onViolaCollect: ({nomen_id: number, species_id: string}) => void,
 };
 
 type NomenProps = NomenDefaultProps & {
@@ -1085,6 +1094,8 @@ type NomenProps = NomenDefaultProps & {
 class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
   static defaultProps = {
     goBack: () => {},
+    viola: false,
+    onViolaCollect: () => {},
   };
 
   state: NomenState;
@@ -1122,6 +1133,8 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
       case 'species':
         const backTo = this.state.screen.backTo;
         return <SpeciesScreen
+          viola={this.props.viola}
+          onViolaCollect={this.props.onViolaCollect}
           species={this.state.screen.species}
           dataset={this.props.dataset}
           goBack={() => {
@@ -1161,8 +1174,20 @@ type HomeState = {
   dataset: 'conifers' | 'prairie' | 'broadleaf' | null,
 };
 
-export class HomeScreen extends Component<void, {}, HomeState> {
+type HomeDefaultProps = {
+  viola: boolean,
+  backToViola: () => void,
+  onViolaCollect: ({nomen_id: number, species_id: string}) => void,
+};
+
+export class HomeScreen extends Component<HomeDefaultProps, HomeDefaultProps, HomeState> {
   state: HomeState;
+
+  static defaultProps = {
+    viola: false,
+    backToViola: () => {},
+    onViolaCollect: () => {},
+  };
 
   constructor(props: {}) {
     super(props);
@@ -1174,14 +1199,36 @@ export class HomeScreen extends Component<void, {}, HomeState> {
   render() {
     switch (this.state.dataset) {
       case 'conifers':
-        return <NomenNative dataset={conifers_specs} goBack={() => this.setState({dataset: null})} />;
+        return <NomenNative
+          viola={this.props.viola}
+          onViolaCollect={this.props.onViolaCollect}
+          dataset={conifers_specs}
+          goBack={() => this.setState({dataset: null})}
+        />;
       case 'prairie':
-        return <NomenNative dataset={mcgee_specs} goBack={() => this.setState({dataset: null})} />;
+        return <NomenNative
+          viola={this.props.viola}
+          onViolaCollect={this.props.onViolaCollect}
+          dataset={mcgee_specs}
+          goBack={() => this.setState({dataset: null})}
+        />;
       case 'broadleaf':
-        return <NomenNative dataset={broadleaf_specs} goBack={() => this.setState({dataset: null})} />;
+        return <NomenNative
+          viola={this.props.viola}
+          onViolaCollect={this.props.onViolaCollect}
+          dataset={broadleaf_specs}
+          goBack={() => this.setState({dataset: null})}
+        />;
       case null:
         return (
           <View style={styles.outerView}>
+            {
+              this.props.viola ? (
+                <TouchableOpacity onPress={this.props.backToViola}>
+                  <Image style={styles.backButton} source={require('../img/back.png')} />
+                </TouchableOpacity>
+              ) : undefined
+            }
             <Text style={{alignSelf: 'center', fontWeight: 'bold', fontSize: 16, letterSpacing: 1, margin: 15}}>
               PLANT TYPE
             </Text>
