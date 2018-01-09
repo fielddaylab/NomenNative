@@ -1196,6 +1196,22 @@ export class HomeScreen extends Component<HomeDefaultProps, HomeDefaultProps, Ho
     };
   }
 
+  backHandler: () => boolean;
+  componentDidMount() {
+    this.backHandler = () => {
+      if (this.props.viola) {
+        this.props.backToViola();
+        return true;
+      } else {
+        return false;
+      }
+    };
+    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
+  }
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+  }
+
   render() {
     switch (this.state.dataset) {
       case 'conifers':
