@@ -306,10 +306,10 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
       this.props.goBack();
       return true;
     };
-    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   static defaultProps = {
@@ -593,10 +593,10 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
       this.props.goBack();
       return true;
     };
-    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   toggleMenu() {
@@ -817,10 +817,10 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
       this.props.goBack();
       return true;
     };
-    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   render() {
@@ -960,10 +960,10 @@ class SearchScreen extends Component<SearchDefaultProps, SearchProps, SearchStat
       this.props.goBack();
       return true;
     };
-    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   results() {
@@ -1206,10 +1206,10 @@ export class HomeScreen extends Component<HomeDefaultProps, HomeDefaultProps, Ho
         return false;
       }
     };
-    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+    if (BackHandler != null) BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   render() {
