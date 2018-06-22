@@ -16,7 +16,7 @@ import {
   Platform,
   BackHandler
 } from 'react-native';
-import Lightbox from 'react-native-lightbox';
+import Gallery from 'react-native-image-gallery';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
@@ -829,6 +829,32 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
     const gloss = (text) => addGlossaryTerms(text, (word, defn) => this.setState({modal: {header: word, info: defn}}));
     const lookalikes = (text) => addSpeciesLinks(text, this.props.dataset, this.props.openSpecies);
     return <View style={styles.outerView}>
+      {
+        (this.state.viewingImage != null) &&
+        <Modal onRequestClose={() => this.setState({viewingImage: null})}>
+          <Gallery
+            style={{flex: 1, backgroundColor: 'black'}}
+            images={imgs.map((img) => {
+              // note, the dimensions are to squash a warning.
+              // not including actual dimensions for local images seems to work ok
+              return {source: img, dimensions: {height: null, width: null}};
+            })}
+            initialPage={this.state.viewingImage}
+          />
+          <TouchableOpacity onPress={() => this.setState({viewingImage: null})} style={{
+            position: 'absolute',
+            top: 25,
+            left: 15,
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            padding: 2,
+          }}>
+            <Image source={require('../img/icon-back.png')} style={{
+              width: 36 * 0.75,
+              height: 28 * 0.75,
+            }} />
+          </TouchableOpacity>
+        </Modal>
+      }
       <TouchableOpacity onPress={this.props.goBack}>
         <Image style={styles.backButton} source={require('../img/back.png')} />
       </TouchableOpacity>
@@ -852,10 +878,12 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         </View>
         <ScrollView style={styles.speciesImageRow} horizontal={true}>
           {
-            imgs.map((img) =>
-              <Lightbox key={img} activeProps={{style: styles.speciesImageFull}}>
+            imgs.map((img, i) =>
+              <TouchableOpacity key={img} onPress={() => {
+                this.setState({viewingImage: i});
+              }}>
                 <Image source={img} style={styles.speciesImage} />
-              </Lightbox>
+              </TouchableOpacity>
             )
           }
         </ScrollView>

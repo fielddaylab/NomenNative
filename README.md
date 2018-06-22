@@ -3,9 +3,9 @@
 Instructions on Mac:
 
 1. If you don't have Homebrew, [http://brew.sh/](http://brew.sh/)
-2. `brew install node`
+2. `brew install node yarn`
 3. `sudo npm install -g react-native-cli`
-4. `npm install`
+4. `yarn`
 
 iOS: open `ios/NomenNative.xcodeproj`, or just run `react-native run-ios` to launch simulator.
 
