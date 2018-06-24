@@ -551,6 +551,7 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
 }
 
 type ResultsProps = {
+  selected: Map<string, Set<string>>,
   results: Array<[Species, number]>,
   goBack: () => void,
   goToSpecies: (Species) => void,
@@ -572,6 +573,7 @@ function arrayChunks<T>(ary: Array<T>, chunkLen: number): Array<Array<T>> {
 
 class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> {
   static defaultProps = {
+    selected: Map(),
     results: [],
     goBack: () => {},
     goToSpecies: () => {},
@@ -604,16 +606,31 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
   }
 
   render() {
-    const possibleIndex = this.props.results.findIndex(([species, score]) => score < 1);
-    const perfect = possibleIndex === -1 ? this.props.results : this.props.results.slice(0, possibleIndex);
-    const notPerfect = possibleIndex === -1 ? [] : this.props.results.slice(possibleIndex);
-    const unlikelyIndex = notPerfect.findIndex(([species, score]) => score < 0.8);
-    const possible = unlikelyIndex === -1 ? notPerfect : notPerfect.slice(0, unlikelyIndex);
-    const unlikely = unlikelyIndex === -1 ? [] : notPerfect.slice(unlikelyIndex);
+    let selected = 0;
+    this.props.selected.forEach((vs, k) => {
+      if (vs.size == 0) return;
+      selected++;
+    });
+
+    let i = 0;
     const resultsGroups = [];
-    if ( perfect.length > 0) { resultsGroups.push({groupHeader:  'PERFECT MATCHES', groupSpecies:  perfect}); }
-    if (possible.length > 0) { resultsGroups.push({groupHeader: 'POSSIBLE MATCHES', groupSpecies: possible}); }
-    if (unlikely.length > 0) { resultsGroups.push({groupHeader: 'UNLIKELY MATCHES', groupSpecies: unlikely}); }
+    while (i < this.props.results.length && i !== -1) {
+      const score = this.props.results[i][1];
+      let i2;
+      if (score === 0) {
+        i2 = this.props.results.length;
+      } else {
+        i2 = this.props.results.findIndex(([species2, score2]) => score2 < score);
+      }
+      let header = `${Math.round(score * selected)}/${selected} MATCHING TRAITS`;
+      if      (score === 0) header = 'NO MATCHING TRAITS';
+      else if (score === 1) header = 'PERFECT MATCHES';
+      resultsGroups.push({
+        groupHeader: header,
+        groupSpecies: this.props.results.slice(i, i2),
+      });
+      i = i2;
+    }
 
     function makeGroupHeader(str) {
       return (
@@ -1155,6 +1172,7 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
       case 'results':
         return <ResultsScreen
           results={results}
+          selected={this.state.selected}
           goBack={() => this.setState({screen: {tag: 'attributes'}})}
           goToSpecies={(spec) => this.setState({screen: {tag: 'species', species: spec, backTo: 'results'}})}
         />;
