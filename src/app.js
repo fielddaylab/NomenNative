@@ -700,11 +700,11 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
                     <TouchableOpacity style={styles.resultsRow} key={species.name} onPress={() => this.props.goToSpecies(species)}>
                       {
                         (() => {
-                          const imgs = getSpeciesImages(species);
+                          const {images} = getSpeciesImages(species);
                           return (
-                            imgs.length === 0
+                            images.length === 0
                             ? <View style={styles.resultsRowImage} />
-                            : <Image source={imgs[0]} style={styles.resultsRowImage} />
+                            : <Image source={images[0]} style={styles.resultsRowImage} />
                           );
                         })()
                       }
@@ -722,13 +722,13 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
                   return <View style={styles.gridSquare} />
                 } else {
                   const [species, score] = maybeSpecScore;
-                  const imgs = getSpeciesImages(species);
+                  const {images} = getSpeciesImages(species);
                   return (
                     <TouchableOpacity style={styles.gridSquare} onPress={() => this.props.goToSpecies(species)}>
                       {
-                        imgs.length === 0
+                        images.length === 0
                         ? <View style={styles.resultsGridImage} />
-                        : <Image source={imgs[0]} style={styles.resultsGridImage} resizeMode="cover" />
+                        : <Image source={images[0]} style={styles.resultsGridImage} resizeMode="cover" />
                       }
                       <Text style={styles.marginTodo}>
                         {this.state.name === 'common' ? species.displayName : species.name}
@@ -844,16 +844,17 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
 
   render() {
     const self = this;
-    const imgs = getSpeciesImages(this.props.species);
+    const {images, maps} = getSpeciesImages(this.props.species);
     const gloss = (text) => addGlossaryTerms(text, (word, defn) => this.setState({modal: {header: word, info: defn}}));
     const lookalikes = (text) => addSpeciesLinks(text, this.props.dataset, this.props.openSpecies);
+    const tabs = ['description'].concat(Array.from(this.props.species.tabs.keys())).concat(maps.length === 0 ? [] : ['range']);
     return <View style={styles.outerView}>
       {
         (this.state.viewingImage != null) &&
         <Modal supportedOrientations={allOrientations} onRequestClose={() => this.setState({viewingImage: null})}>
           <Gallery
             style={{flex: 1, backgroundColor: 'black'}}
-            images={imgs.map((img) => {
+            images={images.map((img) => {
               // note, the dimensions are to squash a warning.
               // not including actual dimensions for local images seems to work ok
               return {source: img, dimensions: {height: null, width: null}};
@@ -897,7 +898,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         </View>
         <ScrollView style={styles.speciesImageRow} horizontal={true}>
           {
-            imgs.map((img, i) =>
+            images.map((img, i) =>
               <TouchableOpacity key={img} onPress={() => {
                 this.setState({viewingImage: i});
               }}>
@@ -908,7 +909,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
         </ScrollView>
         <ScrollView horizontal={true} style={styles.attrValues}>
           {
-            ['description'].concat(Array.from(this.props.species.tabs.keys())).map((k) =>
+            tabs.map((k) =>
               <TouchableOpacity key={k} style={k === this.state.tab ? styles.tabOn : styles.tabOff} onPress={() => this.setState({tab: k})}>
                 <Text style={k === this.state.tab ? styles.attrOn : styles.attrOff}>{k}</Text>
               </TouchableOpacity>
@@ -936,6 +937,10 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
             <Text style={styles.marginTodo}>
               { lookalikes(this.props.species.tabs.get(this.state.tab)) }
             </Text>
+          </View> : this.state.tab === 'range' ? <View style={{alignItems: 'stretch'}}>
+            {
+              maps.map((img) => <Image source={img} key={img} style={{width: null, height: 300, resizeMode: 'contain'}} />)
+            }
           </View> : <View>
             <Text style={styles.marginTodo}>
               { gloss(this.props.species.tabs.get(this.state.tab)) }

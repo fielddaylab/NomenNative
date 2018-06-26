@@ -1431,14 +1431,19 @@ const species_images = {
 };
 
 export function getSpeciesImages(species: Species) {
-  const imgs = [];
+  const images = [];
+  const maps = [];
   for (let k in species_images) {
     if (species.name == null) continue;
     if (k.indexOf(species.name.toLowerCase().replace(/ /g, '_')) === 0) {
-      imgs.push(species_images[k]);
+      if (k.match(/-WImap$/) || k.match(/-map$/) || k.match(/-range$/)) {
+        maps.push(species_images[k]);
+      } else {
+        images.push(species_images[k]);
+      }
     }
   }
-  return imgs;
+  return {images, maps};
 }
 
 export const glossary = {
