@@ -1377,7 +1377,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   attrButtonSelected: {
-    backgroundColor: 'rgb(243,243,239)',
+    backgroundColor: '#d0d1c8',
   },
   attrButtonUnselected: {
     backgroundColor: 'white',
