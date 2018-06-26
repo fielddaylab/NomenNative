@@ -31,6 +31,8 @@ const mcgee_specs = new Dataset( readCSV(mcgee) );
 const conifers_specs = new Dataset( readCSV(conifers) );
 const broadleaf_specs = new Dataset( readCSV(broadleaf) );
 
+const allOrientations = ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
+
 type OptionProps = {
   onPress: () => void,
   onModal: () => void,
@@ -226,7 +228,7 @@ class AttributeRow extends Component<void, AttributeRowProps, AttributeRowState>
         {
           this.state.modal == null
           ? undefined
-          : <Modal transparent={true} onRequestClose={() => this.setState({modal: null})}>
+          : <Modal supportedOrientations={allOrientations} transparent={true} onRequestClose={() => this.setState({modal: null})}>
               <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
                 <View style={styles.modalBackground}>
                   <View style={styles.modalWhiteBox}>
@@ -848,7 +850,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
     return <View style={styles.outerView}>
       {
         (this.state.viewingImage != null) &&
-        <Modal onRequestClose={() => this.setState({viewingImage: null})}>
+        <Modal supportedOrientations={allOrientations} onRequestClose={() => this.setState({viewingImage: null})}>
           <Gallery
             style={{flex: 1, backgroundColor: 'black'}}
             images={imgs.map((img) => {
@@ -944,7 +946,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
       {
         this.state.modal == null
         ? undefined
-        : <Modal transparent={true} onRequestClose={() => this.setState({modal: null})}>
+        : <Modal supportedOrientations={allOrientations} transparent={true} onRequestClose={() => this.setState({modal: null})}>
             <TouchableWithoutFeedback style={{flex: 1}} onPress={() => this.setState({modal: null})}>
               <View style={styles.modalBackground}>
                 <View style={styles.modalWhiteBox}>
