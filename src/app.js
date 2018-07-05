@@ -20,16 +20,14 @@ import Gallery from 'react-native-image-gallery';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
-import mcgee from '../plants/mcgee_A_L';
-import conifers from '../plants/conifers';
-import broadleaf from '../plants/broadleaf_trees';
+import { db_conifers, db_broadleaf_trees } from '../plants-new/database';
 
-import { readCSV, Dataset, Species } from './types';
+import { readObjects, Dataset, Species } from './types';
 import { getFeatureImage, getSpeciesImages, glossary } from './plants';
 
-const mcgee_specs = new Dataset( readCSV(mcgee) );
-const conifers_specs = new Dataset( readCSV(conifers) );
-const broadleaf_specs = new Dataset( readCSV(broadleaf) );
+const mcgee_specs = new Dataset( [] );
+const conifers_specs = new Dataset( readObjects(db_conifers) );
+const broadleaf_specs = new Dataset( readObjects(db_broadleaf_trees) );
 
 const allOrientations = ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
 

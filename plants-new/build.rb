@@ -69,7 +69,7 @@ export const db_conifers = #{conifers.to_json};
 
 export const species_images = {
 #{matched_species_images.each_pair.map do |species, images|
-  "#{species.to_json}: [#{images.map { |image| "require(#{image.to_json})" }.join(', ')}]"
+  "#{species.to_json}: [#{images.map { |image| "require(#{('./' + image).to_json})" }.join(', ')}]"
 end.join(",\n")}
 };
 
@@ -77,7 +77,7 @@ export const trait_images = {
 #{matched_trait_images.each_pair.map do |k, vs|
   "#{k.to_json}: {#{
     vs.each_pair.map do |v, file|
-      "#{v.to_json}: require(#{file.to_json})"
+      "#{v.to_json}: require(#{('./' + file).to_json})"
     end.join(', ')
   }}"
 end.join(",\n")}

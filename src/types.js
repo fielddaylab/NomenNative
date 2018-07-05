@@ -1,14 +1,12 @@
 // @flow
 
-import Papa from 'papaparse';
 import { Map, Set } from 'immutable';
 
 function canoncalize(s: string): string {
   return s.trim().split(/_|\s+/g).join(' ').toLowerCase();
 }
 
-export function readCSV(csv: string): Array<Species> {
-  const data: Array<{ [string]: string }> = Papa.parse(csv, {header: true}).data;
+export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
   let dataset = [];
   for (const row of data) {
     const attrs = {};
@@ -20,8 +18,9 @@ export function readCSV(csv: string): Array<Species> {
     let description = '';
     for (let k in row) {
       let v = row[k];
+      if (v === null) v = '';
       k = canoncalize(k);
-      if (k === 'scientific name') scientific = v;
+      if (k === 'name') scientific = v;
       else if (k === 'common name') common = v;
       else if (k === 'genus') ;
       else if (k === 'species') ;
