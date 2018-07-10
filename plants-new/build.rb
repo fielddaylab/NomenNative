@@ -30,12 +30,16 @@ conifers = read_simple('conifers.csv')
 species_images = Dir["#{drive}/Images - SPECIES/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
 trait_images = Dir["#{drive}/Images - TRAITS/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
 
+unmatched_species_images = species_images
+
 all_scientific_names = [shrubs, trees, conifers].flatten.map { |s| s['name'] }
 matched_species_images = {}
 all_scientific_names.each do |name|
   species_dir = "species/#{name.gsub(' ', '-')}"
   FileUtils.mkdir_p(species_dir)
-  matches = species_images.select { |img| img.include?(name) }
+  regex = /\b#{name.gsub(' ', '[^A-Za-z]+')}\b/i
+  matches = species_images.select { |img| img.match(regex) }
+  unmatched_species_images -= matches
   converted = matches.map do |img|
     dest = "#{species_dir}/#{File.basename(img, '.*').gsub(' ', '-')}.jpg"
     unless File.exists?(dest)
@@ -49,8 +53,9 @@ end
 
 matched_trait_images = {}
 trait_images.each do |image|
-  k = File.basename(File.dirname(image)).gsub('_', ' ')
-  v = File.basename(image, ".*").gsub('_', ' ')
+  k = File.basename(File.dirname(image)).gsub('_', ' ').gsub('-', ' ').downcase
+  v = File.basename(image, ".*").gsub('_', ' ').gsub('-', ' ').downcase
+
   matched_trait_images[k] ||= {}
   dest = "traits/#{k.gsub(' ', '-')}/#{v.gsub(' ', '-')}.jpg"
   unless File.exists?(dest)
@@ -69,7 +74,19 @@ export const db_conifers = #{conifers.to_json};
 
 export const species_images = {
 #{matched_species_images.each_pair.map do |species, images|
-  "#{species.to_json}: [#{images.map { |image| "require(#{('./' + image).to_json})" }.join(', ')}]"
+  maps = []
+  not_maps = []
+  images.each do |image|
+    if image.include?('range') || image.include?('WImap')
+      maps << image
+    else
+      not_maps << image
+    end
+  end
+  def requires(ary)
+    "[#{ary.map { |image| "require(#{('./' + image).to_json})" }.join(', ')}]"
+  end
+  "#{species.to_json}: {images: #{requires(not_maps)}, maps: #{requires(maps)}}"
 end.join(",\n")}
 };
 

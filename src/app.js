@@ -20,14 +20,15 @@ import Gallery from 'react-native-image-gallery';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
-import { db_conifers, db_broadleaf_trees } from '../plants-new/database';
+import { db_conifers, db_broadleaf_trees, db_broadleaf_shrubs } from '../plants-new/database';
 
 import { readObjects, Dataset, Species } from './types';
 import { getFeatureImage, getSpeciesImages, glossary } from './plants';
 
 const mcgee_specs = new Dataset( [] );
 const conifers_specs = new Dataset( readObjects(db_conifers) );
-const broadleaf_specs = new Dataset( readObjects(db_broadleaf_trees) );
+const broadleaf_tree_specs = new Dataset( readObjects(db_broadleaf_trees) );
+const broadleaf_shrub_specs = new Dataset( readObjects(db_broadleaf_shrubs) );
 
 const allOrientations = ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
 
@@ -1279,11 +1280,18 @@ export class HomeScreen extends Component<HomeDefaultProps, HomeDefaultProps, Ho
           dataset={mcgee_specs}
           goBack={() => this.setState({dataset: null})}
         />;
-      case 'broadleaf':
+      case 'broadleaf-trees':
         return <NomenNative
           viola={this.props.viola}
           onViolaCollect={this.props.onViolaCollect}
-          dataset={broadleaf_specs}
+          dataset={broadleaf_tree_specs}
+          goBack={() => this.setState({dataset: null})}
+        />;
+      case 'broadleaf-shrubs':
+        return <NomenNative
+          viola={this.props.viola}
+          onViolaCollect={this.props.onViolaCollect}
+          dataset={broadleaf_shrub_specs}
           goBack={() => this.setState({dataset: null})}
         />;
       case null:
@@ -1304,20 +1312,20 @@ export class HomeScreen extends Component<HomeDefaultProps, HomeDefaultProps, Ho
                 <Image style={styles.homeSelectImage} source={require('../plants/types/coniferous-tree.jpg')} />
                 <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Conifer</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'prairie'})}>
-                <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
-                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb / Forb</Text>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
+                <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/herb.jpg')} />
+                <View style={styles.homeSelectTextBox}>
+                  <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Herb / Forb</Text>
+                  <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
+                </View>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf'})}>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf-trees'})}>
                 <Image style={styles.homeSelectImage} source={require('../plants/types/tree-broadleaf.jpg')} />
                 <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Broadleaf Tree</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
-                <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/shrub.jpg')} />
-                <View style={styles.homeSelectTextBox}>
-                  <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Broadleaf Shrub</Text>
-                  <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
-                </View>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf-shrubs'})}>
+                <Image style={styles.homeSelectImage} source={require('../plants/types/shrub.jpg')} />
+                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Broadleaf Shrub</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.homeSelect]}>
                 <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/woody-vine.jpg')} />

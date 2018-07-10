@@ -4,11 +4,17 @@ import { Species } from './types';
 import { species_images, trait_images } from '../plants-new/database';
 
 export function getFeatureImage(k: string, v: string) {
-  return (trait_images[k] || {})[v] || [];
+  if (v === 'yes') return require('../plants-new/traits/yes-no/yes.jpg');
+  if (v === 'no') return require('../plants-new/traits/yes-no/no.jpg');
+
+  if (k === 'leaf shape') k = 'simple leaf shape';
+  if (k === 'thorns on twig') k = 'thorns';
+
+  return (trait_images[k] || {})[v.replace('-', ' ')] || [];
 }
 
 export function getSpeciesImages(species: Species) {
-  return {images: species_images[species.name], maps: []};
+  return species_images[species.name];
 }
 
 export const glossary = {

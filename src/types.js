@@ -28,13 +28,16 @@ export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
         v = v.slice(v.indexOf('(') + 1);
         v = v.slice(0, v.indexOf(')'));
         family = v;
-      }
-      else if (k === 'description') description = v;
-      else if (k.match(/^description /)) {
+      } else if (k === 'description' || k === 'd-description') {
+        description = v;
+      } else if (k.match(/^description /)) {
         tabs[k.slice('description '.length)] = v;
+      } else if (k.match(/^d-/)) {
+        tabs[k.slice('d-'.length)] = v;
       } else if (k.match(/^info /)) {
         facts[k.slice('info '.length)] = v;
       } else {
+        if (k.match(/(\d|\*)$/)) k = k.slice(0, k.length - 1);
         attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
       }
     }
