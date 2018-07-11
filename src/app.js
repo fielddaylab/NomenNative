@@ -530,11 +530,12 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
           <Text style={[styles.attrHeader, {fontWeight: 'bold'}]}>{String(perfect)} {perfect === 1 ? 'RESULT' : 'RESULTS'}</Text>
           <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 7}}>
             <TouchableOpacity style={{flex: 1}} onPress={this.clearSearch.bind(this)}>
-              {
-                this.anySelection()
-                ? <Text style={[styles.attrHeader, {color: 'rgb(188,188,188)'}]}>clear selections</Text>
-                : undefined
-              }
+              <Text style={[
+                styles.attrHeader,
+                {color: this.anySelection() ? 'black' : 'rgb(188,188,188)'},
+              ]}>
+                clear selections
+              </Text>
             </TouchableOpacity>
             <View style={{
               backgroundColor: 'rgb(238,238,238)',
