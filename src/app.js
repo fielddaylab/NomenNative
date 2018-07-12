@@ -20,12 +20,12 @@ import Gallery from 'react-native-image-gallery';
 import { Map, Set } from 'immutable';
 import update from 'immutability-helper';
 
-import { db_conifers, db_broadleaf_trees, db_broadleaf_shrubs } from '../plants-new/database';
+import { db_herbs_forbs, db_conifers, db_broadleaf_trees, db_broadleaf_shrubs } from '../plants-new/database';
 
 import { readObjects, Dataset, Species } from './types';
 import { getFeatureImage, getSpeciesImages, glossary } from './plants';
 
-const mcgee_specs = new Dataset( [] );
+const mcgee_specs = new Dataset( readObjects(db_herbs_forbs) );
 const conifers_specs = new Dataset( readObjects(db_conifers) );
 const broadleaf_tree_specs = new Dataset( readObjects(db_broadleaf_trees) );
 const broadleaf_shrub_specs = new Dataset( readObjects(db_broadleaf_shrubs) );
@@ -62,16 +62,7 @@ class AttributeOption extends Component<void, OptionProps, void> {
       if (this.props.value === 'green') img = <View style={[style, {backgroundColor: 'rgb(0,102,0)'}]} />;
       else if (this.props.value === 'bluish green') img = <View style={[style, {backgroundColor: 'rgb(53,115,94)'}]} />;
       else if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(255,229,153)'}]} />;
-    } else if (this.props.attribute === 'flower color') {
-      if (this.props.value === 'white') img = <View style={[style, {backgroundColor: '#eee'}]} />;
-      else if (this.props.value === 'purple') img = <View style={[style, {backgroundColor: 'rgb(145,45,141)'}]} />;
-      else if (this.props.value === 'pink') img = <View style={[style, {backgroundColor: 'rgb(253,111,194)'}]} />;
-      else if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(254,240,53)'}]} />;
-      else if (this.props.value === 'green') img = <View style={[style, {backgroundColor: 'rgb(23,165,85)'}]} />;
-      else if (this.props.value === 'blue') img = <View style={[style, {backgroundColor: 'rgb(29,175,236)'}]} />;
-      else if (this.props.value === 'orange') img = <View style={[style, {backgroundColor: 'rgb(240,101,48)'}]} />;
-      else if (this.props.value === 'red') img = <View style={[style, {backgroundColor: 'rgb(234,33,45)'}]} />;
-    } else if (this.props.attribute === 'fall color') {
+    } else if (this.props.attribute === 'fall color' || this.props.attribute === 'leaf fall color') {
       if (this.props.value === 'yellow') img = <View style={[style, {backgroundColor: 'rgb(255,255,102)'}]} />;
       else if (this.props.value === 'orange') img = <View style={[style, {backgroundColor: 'rgb(255,153,0)'}]} />;
       else if (this.props.value === 'red') img = <View style={[style, {backgroundColor: 'rgb(246,77,64)'}]} />;
@@ -81,6 +72,7 @@ class AttributeOption extends Component<void, OptionProps, void> {
       else if (this.props.value === 'copper') img = <View style={[style, {backgroundColor: 'black'}]} />; // TODO
       else if (this.props.value === 'salmon') img = <View style={[style, {backgroundColor: 'rgb(255,174,133)'}]} />;
       else if (this.props.value === 'silvery') img = <View style={[style, {backgroundColor: 'black'}]} />; // TODO
+      else if (this.props.value === 'purple') img = <View style={[style, {backgroundColor: '#a64d79'}]} />;
     }
     return (
       <TouchableOpacity
@@ -1313,12 +1305,9 @@ export class HomeScreen extends Component<HomeDefaultProps, HomeDefaultProps, Ho
                 <Image style={styles.homeSelectImage} source={require('../plants/types/coniferous-tree.jpg')} />
                 <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Conifer</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]}>
-                <Image style={[styles.homeSelectImage, styles.homeSelectOff]} source={require('../plants/types/herb.jpg')} />
-                <View style={styles.homeSelectTextBox}>
-                  <Text style={[styles.homeSelectText, styles.homeSelectOff]}>Herb / Forb</Text>
-                  <Text style={[styles.homeSelectSoonText, styles.homeSelectOff]}>Coming Soon</Text>
-                </View>
+              <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'prairie'})}>
+                <Image style={styles.homeSelectImage} source={require('../plants/types/herb.jpg')} />
+                <Text style={[styles.homeSelectTextBox, styles.homeSelectText]}>Herb / Forb</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.homeSelect, styles.homeSelectDivide]} onPress={() => this.setState({dataset: 'broadleaf-trees'})}>
                 <Image style={styles.homeSelectImage} source={require('../plants/types/tree-broadleaf.jpg')} />

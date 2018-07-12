@@ -9,6 +9,16 @@ export function getFeatureImage(k: string, v: string) {
 
   if (k === 'leaf shape') k = 'simple leaf shape';
   if (k === 'thorns on twig') k = 'thorns';
+  if (k === 'leaf or leaflet margin') k = 'leaf margin';
+
+  if (k === 'cone size') {
+    if (v === '>2"') v = 'large cone';
+    if (v === '<2"') v = 'small cone';
+  }
+
+  k = k.replace('?', '');
+
+  v = v.replace('>', '');
 
   return (trait_images[k] || {})[v.replace('-', ' ')] || [];
 }

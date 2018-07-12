@@ -20,7 +20,7 @@ export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
       let v = row[k];
       if (v === null) v = '';
       k = canoncalize(k);
-      if (k === 'name') scientific = v;
+      if (k === 'name' || k === 'scientific name') scientific = v;
       else if (k === 'common name') common = v;
       else if (k === 'genus') ;
       else if (k === 'species') ;
@@ -38,7 +38,16 @@ export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
         facts[k.slice('info '.length)] = v;
       } else {
         if (k.match(/(\d|\*)$/)) k = k.slice(0, k.length - 1);
-        attrs[k] = Set(v.split(',').map(canoncalize).filter((s) => s != ''));
+        vals = v.split(',').map(canoncalize).filter((s) => s != '');
+        vals = vals.map((v) => {
+          // hacks
+          if (v === 'orbiculate') return 'orbicular';
+          if (v === 'orbiculate (round)') return 'orbicular';
+          v = v.replace(/^< /, '<');
+          v = v.replace(/^> /, '>');
+          return v;
+        });
+        attrs[k] = Set(vals);
       }
     }
     if (attrs.planttype == null) attrs.planttype = Set(['prairie plant']);
@@ -118,7 +127,7 @@ export class Species {
     attrs.forEach((vs, k) => {
       if (vs.size == 0) return;
       const my = this.lookupKey(k);
-      if (vs.some((v) => my.has(v))) n++;
+      if (my.has('unavailable') || vs.some((v) => my.has(v))) n++;
       d++;
     });
     return d == 0 ? 1 : n / d;
@@ -141,6 +150,7 @@ export class Dataset {
         const vs: ?Set<string> = sp.attributes.get(k);
         if (vs) {
           vs.forEach((v) => {
+            if (v === 'unavailable') return;
             this.attributes = this.attributes.update(k, Set(), (set) => set.add(v));
           });
         }

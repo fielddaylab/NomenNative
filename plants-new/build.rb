@@ -7,8 +7,8 @@ require 'json'
 # set this to the directory within your google drive
 drive = '/Users/mtolly/gdrive-miketolly/Field Day/Projects and Events/Baldwin Siftr and Viola 2016_17/APP WORKING FILES'
 
-def read_simple(csv)
-  lines = CSV.readlines(csv)[1..-1]
+def read_simple(rowStart, csv)
+  lines = CSV.readlines(csv)[rowStart..-1]
   headers = lines[0].map do |header|
     if header == 'Scientific name'
       'name'
@@ -23,16 +23,17 @@ def read_simple(csv)
   end
 end
 
-shrubs = read_simple('broadleaf-shrubs.csv')
-trees = read_simple('broadleaf-trees.csv')
-conifers = read_simple('conifers.csv')
+herbsforbs = read_simple(0, 'mcgee_A_L.csv')
+shrubs = read_simple(1, 'broadleaf-shrubs.csv')
+trees = read_simple(1, 'broadleaf-trees.csv')
+conifers = read_simple(1, 'conifers.csv')
 
 species_images = Dir["#{drive}/Images - SPECIES/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
 trait_images = Dir["#{drive}/Images - TRAITS/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
 
 unmatched_species_images = species_images
 
-all_scientific_names = [shrubs, trees, conifers].flatten.map { |s| s['name'] }
+all_scientific_names = [shrubs, trees, conifers].flatten.map { |s| s['name'] } + herbsforbs.map { |s| s['Scientific Name'] }
 matched_species_images = {}
 all_scientific_names.each do |name|
   species_dir = "species/#{name.gsub(' ', '-')}"
@@ -68,6 +69,7 @@ end
 js = %{
 'use strict';
 
+export const db_herbs_forbs = #{herbsforbs.to_json};
 export const db_broadleaf_shrubs = #{shrubs.to_json};
 export const db_broadleaf_trees = #{trees.to_json};
 export const db_conifers = #{conifers.to_json};
