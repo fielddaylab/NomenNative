@@ -10,6 +10,13 @@ export function getFeatureImage(k: string, v: string) {
   if (k === 'leaf shape') k = 'simple leaf shape';
   if (k === 'thorns on twig') k = 'thorns';
   if (k === 'leaf or leaflet margin') k = 'leaf margin';
+  if (k === 'flower type') {
+    k = 'flower type (showiness)';
+    if (v === 'showy / colorful') v = 'showy';
+    if (v === 'showy / petals present') v = 'showy';
+    if (v === 'inconspicuous / green') v = 'inconspicuous';
+    if (v === 'inconspicuous / petals absent') v = 'inconspicuous';
+  }
 
   if (k === 'cone size') {
     if (v === '>2"') v = 'large cone';
