@@ -38,8 +38,7 @@ export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
         facts[k.slice('info '.length)] = v;
       } else {
         if (k.match(/(\d|\*)$/)) k = k.slice(0, k.length - 1);
-        vals = v.split(',').map(canoncalize).filter((s) => s != '');
-        vals = vals.map((v) => {
+        const vals = v.split(',').map(canoncalize).filter((s) => s != '').map((v) => {
           // hacks
           if (v === 'orbiculate') return 'orbicular';
           if (v === 'orbiculate (round)') return 'orbicular';
@@ -47,7 +46,11 @@ export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
           v = v.replace(/^> /, '>');
           return v;
         });
-        attrs[k] = Set(vals);
+        if (attrs[k] != null) {
+          attrs[k] = attrs[k].union(Set(vals));
+        } else {
+          attrs[k] = Set(vals);
+        }
       }
     }
     if (attrs.planttype == null) attrs.planttype = Set(['prairie plant']);
@@ -134,9 +137,15 @@ export class Species {
   }
 }
 
+type Dependency
+  = {column: string, is: Set<string>}
+  | {column: string, is_not: Set<string>}
+  ;
+
 export class Dataset {
   attributes: Map<string, Set<string>>;
   species: Array<Species>;
+  dependencies: Map<string, Array<Dependency>>;
 
   constructor(species: Array<Species>) {
     this.species = species;
@@ -156,6 +165,7 @@ export class Dataset {
         }
       });
     });
+    this.dependencies = Map();
   }
 
   score(attrs: Map<string, Set<string>>): Array<[Species, number]> {

@@ -30,6 +30,34 @@ const conifers_specs = new Dataset( readObjects(db_conifers) );
 const broadleaf_tree_specs = new Dataset( readObjects(db_broadleaf_trees) );
 const broadleaf_shrub_specs = new Dataset( readObjects(db_broadleaf_shrubs) );
 
+broadleaf_tree_specs.dependencies = Map({
+  "leaflet number": [{column: 'leaf type', is_not: Set(['simple'])}],
+  "leaflet shape": [{column: 'leaf type', is_not: Set(['simple'])}],
+  "leaflet stalk": [{column: 'leaf arrangement', is: Set(['opposite'])}, {column: 'leaf type', is: Set(['pinnately compound'])}],
+  "maple sinus shape": [
+    {column: 'leaf arrangement', is: Set(['opposite'])},
+    {column: 'leaf type', is: Set(['simple'])},
+    {column: 'leaf shape', is: Set(['lobed'])},
+  ],
+  "leaf length width ratio": [{column: 'maple sinus shape', is: Set(['v-shaped'])}],
+  "flower color": [{column: 'flower type', is: Set(['showy / petals present'])}],
+});
+broadleaf_shrub_specs.dependencies = Map({
+  "simple leaf shape": [{column: 'leaf type', is: Set(['simple'])}],
+  "leaflet number": [{column: 'leaf type', is: Set(['pinnately compound', 'palmately compound'])}],
+  "leaflet shape": [{column: 'leaf type', is: Set(['pinnately compound', 'palmately compound', 'trifoliate'])}],
+  "leaf tip": [{column: 'leaf type', is: Set(['simple'])}],
+  "leaf base": [{column: 'leaf type', is: Set(['simple'])}],
+  "flower type": [{column: 'are flowers present', is: Set(['yes'])}],
+  "flower color": [{column: 'are flowers present', is: Set(['yes'])}, {column: 'flower type', is: Set(['showy / colorful'])}],
+  "flower arrangement": [{column: 'are flowers present', is: Set(['yes'])}],
+  "flower symmetry": [{column: 'are flowers present', is: Set(['yes'])}, {column: 'flower type', is: Set(['showy / colorful'])}],
+  "number of petals": [{column: 'are flowers present', is: Set(['yes'])}, {column: 'flower type', is: Set(['showy / colorful'])}],
+  "young stem texture": [{column: 'thorns', is: Set(['no thorns'])}],
+  "pith type": [{column: 'leaf arrangement', is: Set(['opposite'])}],
+  "pith color": [{column: 'leaf arrangement', is: Set(['opposite'])}, {column: 'pith type', is: Set(['solid'])}],
+});
+
 const allOrientations = ['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right'];
 
 type OptionProps = {
@@ -342,6 +370,14 @@ class AttributesScreen extends Component<AttributesDefaultProps, AttributesProps
         }
         if (this.props.selected.get(k, Set()).size !== 0) {
           return false;
+        }
+        for (let dep of this.props.dataset.dependencies.get(k, [])) {
+          const selected = this.props.selected.get(dep.column, Set());
+          if (dep.is != null) {
+            if (selected.intersect(dep.is).isEmpty()) return true;
+          } else if (dep.is_not != null) {
+            if (!selected.intersect(dep.is_not).isEmpty()) return true;
+          }
         }
         for (let [species, score] of this.props.results) {
           if (score !== 1) break;
@@ -752,6 +788,7 @@ class ResultsScreen extends Component<ResultsProps, ResultsProps, ResultsState> 
 type SpeciesState = {
   tab: string,
   modal: ?{header: string, info: string},
+  viewingImage: ?number,
 };
 
 type SpeciesPropsDef = {
@@ -819,7 +856,7 @@ class SpeciesScreen extends Component<SpeciesPropsDef, SpeciesProps, SpeciesStat
 
   constructor(props: SpeciesProps) {
     super(props);
-    this.state = { tab: 'description', modal: null };
+    this.state = { tab: 'description', modal: null, viewingImage: null };
   }
 
   backHandler: () => boolean;
@@ -1216,7 +1253,7 @@ class NomenNative extends Component<NomenDefaultProps, NomenProps, NomenState> {
 }
 
 type HomeState = {
-  dataset: 'conifers' | 'prairie' | 'broadleaf' | null,
+  dataset: 'conifers' | 'prairie' | 'broadleaf-trees' | 'broadleaf-shrubs' | null,
 };
 
 type HomeDefaultProps = {
