@@ -10,12 +10,18 @@ export function getFeatureImage(k: string, v: string) {
   if (k === 'leaf shape') k = 'simple leaf shape';
   if (k === 'thorns on twig') k = 'thorns';
   if (k === 'leaf or leaflet margin') k = 'leaf margin';
+  if (k === 'leaf venation') k = 'leaf or leaflet venation';
   if (k === 'flower type') {
     k = 'flower type (showiness)';
     if (v === 'showy / colorful') v = 'showy';
     if (v === 'showy / petals present') v = 'showy';
     if (v === 'inconspicuous / green') v = 'inconspicuous';
     if (v === 'inconspicuous / petals absent') v = 'inconspicuous';
+  }
+  if (k === 'leaf type') {
+    if (v === 'pinnate') v = 'pinnately compound';
+    if (v === 'palmate') v = 'palmately compound';
+    if (v === 'bipinnate') v = 'bipinnately compound';
   }
 
   if (k === 'cone size') {
@@ -26,6 +32,7 @@ export function getFeatureImage(k: string, v: string) {
   k = k.replace('?', '');
 
   v = v.replace('>', '');
+  v = v.replace('/', ' ');
 
   return (trait_images[k] || {})[v.replace('-', ' ')] || [];
 }

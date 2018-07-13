@@ -42,6 +42,7 @@ export function readObjects(data: Array<{ [string]: string }>): Array<Species> {
           // hacks
           if (v === 'orbiculate') return 'orbicular';
           if (v === 'orbiculate (round)') return 'orbicular';
+          if (v === 'ye') return 'yes';
           v = v.replace(/^< /, '<');
           v = v.replace(/^> /, '>');
           return v;

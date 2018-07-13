@@ -1,0 +1,35 @@
+conifers:
+cone scale texture (all)
+
+herb/forb:
+leaf shape (oblong, divided, spatulate)
+leaf margin (lobed, toothed)
+leaf venation (branched)
+growth form (upright no/few branches, upright singular)
+
+broadleaf tree:
+leaf upper surface texture (all)
+leaf lower surface texture (all)
+flower color (light yellow)
+ripe fruit color (all)
+fall color (copper, silvery)
+special bark color (all)
+leaf or leaflet margin (lobed)
+petiole cross-section (all)
+
+broadleaf shrub:
+flower color (white or cream)
+flower arrangement (single, paired, catkin/cone)
+flower symmetry (asymmetrical)
+ecosystem (all)
+fruit type (capsule)
+leaf fall color (green)
+leaf lower surface texture (all)
+leaf upper surface texture (all)
+leaf or leaflet venation (3-veined or palmate)
+leaflet shape (lobed, truncate)
+mature shrub growth form (sprawling or arching)
+pith color (all)
+ripe fruit color (all)
+simple leaf shape (scale-like)
+young stem texture (all)
