@@ -42,7 +42,8 @@ all_scientific_names.each do |name|
   matches = species_images.select { |img| img.match(regex) }
   unmatched_species_images -= matches
   converted = matches.map do |img|
-    dest = "#{species_dir}/#{File.basename(img, '.*').gsub(' ', '-')}.jpg"
+    # 0..37 is hack for too-long filenames in android build
+    dest = "#{species_dir}/#{File.basename(img, '.*').gsub(' ', '-')[0..37]}.jpg"
     unless File.exists?(dest)
       puts "Converting: #{dest}"
       system('convert', img, '-resize', '500x500', dest)
