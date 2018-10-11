@@ -16,9 +16,19 @@ def read_simple(rowStart, csv)
       header
     end
   end
+  headers_combined = {}
+  headers.each_with_index do |header, i|
+    if header.match(/\d$/)
+      header = header[0..-2]
+    end
+    headers_combined[header] = headers_combined.fetch(header, []) + [i]
+  end
   lines[1..-1].map do |line|
     o = {}
-    headers.each_with_index { |header, i| o[header] = line[i] }
+    headers_combined.each_pair do |header, indexes|
+      vals = indexes.map { |i| line[i] }.reject(&:nil?)
+      o[header] = vals.empty? ? nil : vals.join(',')
+    end
     o
   end
 end
