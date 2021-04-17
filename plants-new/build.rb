@@ -4,8 +4,8 @@ require 'csv'
 require 'fileutils'
 require 'json'
 
-# set this to the directory within your google drive
-drive = '/Users/mtolly/gdrive-miketolly/Field Day/Projects and Events/Baldwin Siftr and Viola 2016_17/APP WORKING FILES'
+# set this to the correct directory within  google drive folder
+drive = 'path/to/Baldwin Siftr and Viola App/APP WORKING FILES'
 
 def read_simple(rowStart, csv)
   lines = CSV.readlines(csv)[rowStart..-1]
@@ -38,8 +38,8 @@ shrubs = read_simple(1, 'broadleaf-shrubs.csv')
 trees = read_simple(1, 'broadleaf-trees.csv')
 conifers = read_simple(1, 'conifers.csv')
 
-species_images = Dir["#{drive}/Images - SPECIES/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
-trait_images = Dir["#{drive}/Images - TRAITS/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
+species_images = Dir["#{drive}/_Images - SPECIES/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
+trait_images = Dir["#{drive}/_Images - TRAITS/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}"]
 
 unmatched_species_images = species_images
 
